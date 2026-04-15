@@ -219,7 +219,7 @@ const esContraturno = (currentTurno.toLowerCase() === 'contraturno');
 
 document.getElementById('tableHeader').innerHTML = esContraturno
 ? `<span>Alumno</span><span>Espacio de Falta</span>`
-: `<span>Alumno</span><span>Faltó (Turno Completo)</span>`;
+: `<span>Alumno</span><span>Faltó (Turno)</span>`;
 
 const listHTML = alumnosDelCurso.map((s) => {
 const idStr = String(s.id);
