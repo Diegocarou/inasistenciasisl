@@ -9,50 +9,35 @@
 :root { --navy:#1a2744; --navy-light:#243259; --gold:#c9a84c; --cream:#f9f6f0; --gray:#6b7280; --gray-light:#e5e7eb; --red:#dc2626; --red-bg:#fee2e2; --green:#16a34a; }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);min-height:100vh;}
-
 header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items:center;height:68px;}
 .hbrand{display:flex;align-items:center;gap:14px;}
 .hlogo{width:42px;height:42px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;color:var(--navy);}
 .htitle{font-family:'Playfair Display',serif;font-size:1.15rem;}
-
 .layout{display:flex;min-height:calc(100vh - 68px);}
 .sidebar{width:280px;background:#fff;border-right:1px solid var(--gray-light);overflow-y:auto;}
 .main{flex:1;padding:2rem;overflow-y:auto;}
-
 .tcard{background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(26,39,68,.10);overflow:hidden;}
 .thead, .trow{display:grid;grid-template-columns:1fr auto;padding:12px 20px;align-items:center; gap: 15px;}
 .thead{background:#f1f4fb;font-size:.75rem;font-weight:600;color:var(--gray);text-transform:uppercase;}
 .trow{border-bottom:1px solid var(--gray-light);}
-
-/* Estilos para asistencia Regular */
+.trow.absent-row{background-color:var(--red-bg);}
 .cwrap input[type=checkbox]{display:none;}
-.clbl{width:28px;height:28px;border:2px solid var(--gray-light);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center; transition:0.2s;}
+.clbl{width:28px;height:28px;border:2px solid var(--gray-light);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .cwrap input:checked + .clbl{background:var(--red);border-color:var(--red);color:white;}
 .cwrap input:checked + .clbl::after{content:'✕';font-size:16px;}
-
-/* Estilos para asistencia Contraturno */
-.sel-espacio { padding: 8px; border-radius: 6px; border: 1px solid var(--gray-light); font-family: 'DM Sans'; font-size: 0.85rem; width: 140px; background: #fff; cursor:pointer;}
+.sel-espacio { padding: 8px; border-radius: 6px; border: 1px solid var(--gray-light); font-family: 'DM Sans'; font-size: 0.85rem; width: 140px; background: #fff; }
 .sel-espacio.marcado { border-color: var(--red); color: var(--red); font-weight:600; background: var(--red-bg); }
-
-.btn{padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:600;background:var(--green);color:white;}
-.btn:disabled{opacity:0.6;cursor:not-allowed;}
-
+.btn{padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:600;background:var(--green);color:white;width:100%;}
 .ditem{padding:12px 20px;cursor:pointer;border-left:4px solid transparent;}
-.ditem:hover{background:var(--cream);}
 .ditem.active{background:var(--cream);border-left-color:var(--navy);font-weight:600;}
-
-/* Estilos de los selectores del menú */
-.m-select { width:100%; padding:10px; margin-top:5px; border-radius:6px; border:1px solid var(--gray-light); font-family:'DM Sans'; }
-.m-label { font-size: 0.75rem; font-weight: 700; color: var(--gray); text-transform: uppercase; }
-.m-section { padding: 15px; border-bottom: 1px solid var(--gray-light); }
+.m-section{padding:15px; border-bottom:1px solid var(--gray-light);}
+.m-label{font-size:0.7rem; font-weight:700; color:var(--gray); text-transform:uppercase; display:block; margin-bottom:5px;}
+.m-select{width:100%; padding:10px; border-radius:8px; border:1px solid var(--gray-light);}
 
 @media (max-width: 768px) {
-.layout { flex-direction: column; }
-.sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--navy); }
-.main { padding: 1rem; }
-.thead, .trow { padding: 12px 10px; }
-.btn { width: 100%; text-align: center; margin-top: 10px; }
-.sel-espacio { width: 120px; }
+.layout{flex-direction:column;}
+.sidebar{width:100%; border-right:none; border-bottom:2px solid var(--navy);}
+.main{padding:1rem;}
 }
 </style>
 </head>
@@ -61,39 +46,25 @@ header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items
 <header>
 <div class="hbrand">
 <div class="hlogo">SL</div>
-<div>
 <div class="htitle">Instituto Santa Lucía</div>
-<div style="font-size:0.8rem; opacity:0.8;">Gestión de Asistencia</div>
-</div>
 </div>
 </header>
 
 <div class="layout">
 <aside class="sidebar" id="sidebarMenu">
-<div style="padding:20px; text-align:center;">Cargando sistema...</div>
+<div style="padding:20px; text-align:center;">Cargando...</div>
 </aside>
-
 <main class="main" id="mainArea" style="display:none;">
-<h2 id="courseTitle" style="font-family:'Playfair Display'; margin-bottom:1rem; color:var(--navy);"></h2>
-
+<h2 id="courseTitle" style="margin-bottom:1rem; font-family:'Playfair Display'; color:var(--navy);"></h2>
 <div class="tcard">
-<div class="thead" id="tableHeader">
-<span>Alumno</span><span>Asistencia</span>
-</div>
 <div id="studentList"></div>
 </div>
-
-<div style="margin-top: 2rem; text-align: right;">
-<button class="btn" id="sendBtn" onclick="enviarInasistencias()">Confirmar y Enviar Avisos</button>
-</div>
+<div style="margin-top:2rem;"><button class="btn" id="sendBtn" onclick="enviarInasistencias()">Confirmar y Enviar Avisos</button></div>
 </main>
 </div>
 
 <script>
-// =========================================================
-// ⚠️ PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTPNSj8Mbp0wzSSCAU2lVg5dNbRzz9RVtmiuWl2-A-64Vews98faIyTYFoc0v0DASrYg/exec";
-// =========================================================
 
 let ALL_STUDENTS = [];
 let configs = null;
@@ -103,243 +74,110 @@ let currentCourse = "";
 
 async function iniciarSistema() {
 try {
-const [alumnosRes, configRes] = await Promise.all([
+const [alRes, confRes] = await Promise.all([
 fetch(SCRIPT_URL + "?action=getStudents"),
 fetch(SCRIPT_URL + "?action=getConfig")
 ]);
-
-ALL_STUDENTS = await alumnosRes.json();
-configs = await configRes.json();
-
-renderSidebarInicial();
-} catch (error) {
-document.getElementById('sidebarMenu').innerHTML = '<div style="padding:20px; color:red;">Error de conexión. Revise la URL.</div>';
-}
+ALL_STUDENTS = await alRes.json();
+configs = await confRes.json();
+renderSidebar();
+} catch (e) { alert("Error de conexión."); }
 }
 
-function renderSidebarInicial() {
+function renderSidebar() {
 const sidebar = document.getElementById('sidebarMenu');
 sidebar.innerHTML = `
 <div class="m-section">
 <label class="m-label">1. TURNO</label>
-<select id="selectTurno" class="m-select" onchange="filtrarTurno(this.value)">
-<option value="">Seleccione Turno...</option>
+<select onchange="cambiarTurno(this.value)" class="m-select">
+<option value="">Seleccione...</option>
 <option value="Mañana">Mañana</option>
 <option value="Tarde">Tarde</option>
 <option value="Contraturno">Contraturno</option>
 </select>
 </div>
-
-<div id="containerPreceptor" class="m-section" style="display:none;">
+<div id="secPreceptor" class="m-section" style="display:none;">
 <label class="m-label">2. PRECEPTOR</label>
-<select id="selectPreceptor" class="m-select" onchange="filtrarPreceptor(this.value)">
-<option value="">Seleccione su nombre...</option>
-</select>
+<select id="selPreceptor" onchange="cambiarPreceptor(this.value)" class="m-select"></select>
 </div>
-
-<div id="linksCursos" style="display:none;"></div>
+<div id="linksCursos"></div>
 `;
 }
 
-// Cuando se elige el TURNO
-function filtrarTurno(turnoElegido) {
-currentTurno = turnoElegido;
-currentPreceptor = "";
-
-// Reseteamos las vistas de abajo
-document.getElementById('linksCursos').style.display = 'none';
+function cambiarTurno(turno) {
+currentTurno = turno;
 document.getElementById('mainArea').style.display = 'none';
+document.getElementById('linksCursos').innerHTML = '';
+if(!turno) { document.getElementById('secPreceptor').style.display = 'none'; return; }
 
-if(!turnoElegido) {
-document.getElementById('containerPreceptor').style.display = 'none';
-return;
+const lista = [...new Set(ALL_STUDENTS.filter(s => s.turno && s.turno.trim().toLowerCase() === turno.toLowerCase()).map(s => s.preceptor))].sort();
+const sel = document.getElementById('selPreceptor');
+sel.innerHTML = '<option value="">Seleccione...</option>' + lista.map(p => `<option value="${p}">${p}</option>`).join('');
+document.getElementById('secPreceptor').style.display = 'block';
 }
 
-// Buscamos solo los preceptores que pertenecen al turno elegido
-const preceptoresDelTurno = [...new Set(
-ALL_STUDENTS.filter(s => {
-// Ignora diferencias de mayúsculas/minúsculas y espacios
-return s.turno && s.turno.trim().toLowerCase() === turnoElegido.toLowerCase();
-}).map(s => s.preceptor)
-)].filter(Boolean).sort();
-
-// Llenamos el desplegable de preceptores
-const selectPrecep = document.getElementById('selectPreceptor');
-selectPrecep.innerHTML = '<option value="">Seleccione su nombre...</option>' +
-preceptoresDelTurno.map(p => `<option value="${p}">${p}</option>`).join('');
-
-document.getElementById('containerPreceptor').style.display = 'block';
-}
-
-// Cuando se elige el PRECEPTOR
-function filtrarPreceptor(nombreElegido) {
-currentPreceptor = nombreElegido;
+function cambiarPreceptor(precep) {
+currentPreceptor = precep;
 document.getElementById('mainArea').style.display = 'none';
+if(!precep) { document.getElementById('linksCursos').innerHTML = ''; return; }
 
-if(!nombreElegido) {
-document.getElementById('linksCursos').style.display = 'none';
-return;
+const cursos = [...new Set(ALL_STUDENTS.filter(s => s.preceptor === precep && s.turno.trim().toLowerCase() === currentTurno.toLowerCase()).map(s => s.curso))].sort();
+document.getElementById('linksCursos').innerHTML = '<div style="padding:15px;" class="m-label">3. CURSOS</div>' +
+cursos.map(c => `<div class="ditem" onclick="cargarCurso('${c}')">${c}</div>`).join('');
 }
 
-// Buscamos los cursos de este preceptor, en este turno
-const misAlumnos = ALL_STUDENTS.filter(s =>
-s.preceptor === nombreElegido &&
-s.turno.trim().toLowerCase() === currentTurno.toLowerCase()
-);
-
-const misDivisiones = [...new Set(misAlumnos.map(s => s.curso))].sort();
-
-const container = document.getElementById('linksCursos');
-container.style.display = 'block';
-container.innerHTML = '<div style="padding: 15px; font-size: 0.75rem; font-weight:700; color: var(--gray);">3. MIS CURSOS</div>';
-
-misDivisiones.forEach(curso => {
-const div = document.createElement('div');
-div.className = "ditem";
-div.innerHTML = `<span>${curso}</span>`;
-div.onclick = (e) => {
-document.querySelectorAll('.ditem').forEach(el => el.classList.remove('active'));
-e.currentTarget.classList.add('active');
-cargarCurso(curso, misAlumnos);
-};
-container.appendChild(div);
-});
-}
-
-// Cuando se elige el CURSO
-function cargarCurso(nombreCurso, alumnosDelPreceptor) {
-currentCourse = nombreCurso;
+function cargarCurso(c) {
+currentCourse = c;
 document.getElementById('mainArea').style.display = 'block';
-document.getElementById('courseTitle').innerText = `Curso: ${nombreCurso} (${currentTurno})`;
+document.getElementById('courseTitle').innerText = c + " (" + currentTurno + ")";
+document.querySelectorAll('.ditem').forEach(el => el.classList.toggle('active', el.innerText === c));
 
-const alumnosDelCurso = alumnosDelPreceptor.filter(s => s.curso === nombreCurso);
+const alumnos = ALL_STUDENTS.filter(s => s.curso === c && s.preceptor === currentPreceptor && s.turno.trim().toLowerCase() === currentTurno.toLowerCase());
+const esContra = (currentTurno.toLowerCase() === 'contraturno');
 
-// La magia: Evaluamos automáticamente si estamos en Contraturno
-const esContraturno = (currentTurno.toLowerCase() === 'contraturno');
-
-document.getElementById('tableHeader').innerHTML = esContraturno
-? `<span>Alumno</span><span>Espacio de Falta</span>`
-: `<span>Alumno</span><span>Faltó (Turno)</span>`;
-
-const listHTML = alumnosDelCurso.map((s) => {
-const idStr = String(s.id);
-
-// Contraturno = Desplegable | Mañana/Tarde = Cuadradito Checkbox
-const controlAsistencia = esContraturno
-? `<select id="aus_${idStr}" class="sel-espacio" onchange="colorearSelect(this)">
-<option value="">Presente</option>
-<option value="Educación Física">Ed. Física</option>
-<option value="Formación Religiosa">F. Religiosa</option>
-<option value="Informática">Informática</option>
+document.getElementById('studentList').innerHTML = alumnos.map(s => {
+const id = String(s.id);
+const ctrl = esContra
+? `<select id="ctrl_${id}" class="sel-espacio" onchange="this.classList.toggle('marcado', this.value!==''); this.closest('.trow').classList.toggle('absent-row', this.value!=='')">
+<option value="">Presente</option><option value="Educación Física">Ed. Física</option><option value="Formación Religiosa">F. Religiosa</option><option value="Informática">Informática</option>
 </select>`
-: `<label class="cwrap">
-<input type="checkbox" id="chk_${idStr}" onchange="colorearFila(this)">
-<div class="clbl"></div>
-</label>`;
-
-return `
-<div class="trow" id="row_${idStr}">
-<span style="font-weight:500;">${s.nombre}</span>
-<div>${controlAsistencia}</div>
-</div>`;
+: `<label class="cwrap"><input type="checkbox" id="ctrl_${id}" onchange="this.closest('.trow').classList.toggle('absent-row', this.checked)"><div class="clbl"></div></label>`;
+return `<div class="trow"><span>${s.apellido}, ${s.nombre}</span><div>${ctrl}</div></div>`;
 }).join('');
-
-document.getElementById('studentList').innerHTML = listHTML;
-}
-
-function colorearFila(checkbox) {
-const row = checkbox.closest('.trow');
-if(checkbox.checked) row.classList.add('absent-row');
-else row.classList.remove('absent-row');
-}
-
-function colorearSelect(select) {
-const row = select.closest('.trow');
-if(select.value !== "") {
-select.classList.add('marcado');
-row.classList.add('absent-row');
-} else {
-select.classList.remove('marcado');
-row.classList.remove('absent-row');
-}
 }
 
 async function enviarInasistencias() {
-const esContraturno = (currentTurno.toLowerCase() === 'contraturno');
-const alumnosActuales = ALL_STUDENTS.filter(s =>
-s.curso === currentCourse &&
-s.preceptor === currentPreceptor &&
-s.turno.trim().toLowerCase() === currentTurno.toLowerCase()
-);
-
+const alumnos = ALL_STUDENTS.filter(s => s.curso === currentCourse && s.preceptor === currentPreceptor && s.turno.trim().toLowerCase() === currentTurno.toLowerCase());
+const esContra = (currentTurno.toLowerCase() === 'contraturno');
 const queue = [];
 
-alumnosActuales.forEach(s => {
-const idStr = String(s.id);
-
-if (esContraturno) {
-const select = document.getElementById(`aus_${idStr}`);
-if (select && select.value !== "") {
-const espacioMarcado = select.value;
-const template = configs['contraturno'];
+alumnos.forEach(s => {
+const el = document.getElementById(`ctrl_${String(s.id)}`);
+const faltó = esContra ? (el.value !== "") : el.checked;
+if(faltó) {
+const espacio = esContra ? el.value : ("Turno " + currentTurno);
+const temp = configs[esContra ? 'contraturno' : 'turno'];
+const nombreC = s.apellido + ", " + s.nombre;
 queue.push({
 to: s.email,
-subject: template.subject.replace(/{{alumno}}/g, s.nombre).replace(/{{espacio}}/g, espacioMarcado),
-body: template.body
-.replace(/{{alumno}}/g, s.nombre)
-.replace(/{{curso}}/g, s.curso)
-.replace(/{{espacio}}/g, espacioMarcado)
-.replace(/{{fecha}}/g, new Date().toLocaleDateString('es-AR'))
-.replace(/{{preceptor}}/g, currentPreceptor),
-datosRegistro: { alumno: s.nombre, curso: s.curso, espacio: espacioMarcado, preceptor: currentPreceptor }
+subject: temp.subject.replace(/{{alumno}}/g, nombreC).replace(/{{espacio}}/g, espacio),
+body: temp.body.replace(/{{alumno}}/g, nombreC).replace(/{{curso}}/g, s.curso).replace(/{{espacio}}/g, espacio).replace(/{{fecha}}/g, new Date().toLocaleDateString('es-AR')).replace(/{{preceptor}}/g, currentPreceptor),
+datosRegistro: { alumno: nombreC, curso: s.curso, espacio: espacio, preceptor: currentPreceptor }
 });
-}
-} else {
-const checkbox = document.getElementById(`chk_${idStr}`);
-if (checkbox && checkbox.checked) {
-const template = configs['turno'];
-queue.push({
-to: s.email,
-subject: template.subject.replace(/{{alumno}}/g, s.nombre),
-body: template.body
-.replace(/{{alumno}}/g, s.nombre)
-.replace(/{{curso}}/g, s.curso)
-.replace(/{{fecha}}/g, new Date().toLocaleDateString('es-AR'))
-.replace(/{{preceptor}}/g, currentPreceptor),
-datosRegistro: { alumno: s.nombre, curso: s.curso, espacio: `Turno ${currentTurno}`, preceptor: currentPreceptor }
-});
-}
 }
 });
 
-if (queue.length === 0) return alert("No se ha marcado ninguna inasistencia.");
-
-const confirmacion = confirm(`¿Enviar aviso y registrar la inasistencia de ${queue.length} alumno/s?`);
-if (!confirmacion) return;
+if(queue.length === 0) return alert("No hay marcados.");
+if(!confirm("¿Enviar y registrar " + queue.length + " avisos?")) return;
 
 const btn = document.getElementById('sendBtn');
-btn.disabled = true;
-btn.innerText = "🚀 Registrando...";
-
+btn.disabled = true; btn.innerText = "🚀 Enviando...";
 try {
-await fetch(SCRIPT_URL, {
-method: 'POST',
-mode: 'no-cors',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ queue: queue })
-});
-
-alert(`¡Éxito! Se enviaron los avisos y se guardó el registro.`);
-
-// Recargamos el curso para limpiar las selecciones
-cargarCurso(currentCourse, alumnosActuales);
-
-} catch (error) {
-alert("Hubo un error al enviar. Reintente.");
-} finally {
-btn.disabled = false;
-btn.innerText = "Confirmar y Enviar Avisos";
-}
+await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ queue }) });
+alert("¡Éxito!");
+cargarCurso(currentCourse);
+} catch (e) { alert("Error."); }
+finally { btn.disabled = false; btn.innerText = "Confirmar y Enviar Avisos"; }
 }
 </script>
 </body>
