@@ -24,13 +24,13 @@ header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items
 .thead{background:#f1f4fb;font-size:.75rem;font-weight:600;color:var(--gray);text-transform:uppercase;}
 .trow{border-bottom:1px solid var(--gray-light);}
 
-/* Estilos para el Checkbox del Turno Regular */
+/* Estilos para asistencia Regular */
 .cwrap input[type=checkbox]{display:none;}
 .clbl{width:28px;height:28px;border:2px solid var(--gray-light);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center; transition:0.2s;}
 .cwrap input:checked + .clbl{background:var(--red);border-color:var(--red);color:white;}
 .cwrap input:checked + .clbl::after{content:'✕';font-size:16px;}
 
-/* Estilos para el Desplegable de Contraturno */
+/* Estilos para asistencia Contraturno */
 .sel-espacio { padding: 8px; border-radius: 6px; border: 1px solid var(--gray-light); font-family: 'DM Sans'; font-size: 0.85rem; width: 140px; background: #fff; cursor:pointer;}
 .sel-espacio.marcado { border-color: var(--red); color: var(--red); font-weight:600; background: var(--red-bg); }
 
@@ -40,6 +40,11 @@ header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items
 .ditem{padding:12px 20px;cursor:pointer;border-left:4px solid transparent;}
 .ditem:hover{background:var(--cream);}
 .ditem.active{background:var(--cream);border-left-color:var(--navy);font-weight:600;}
+
+/* Estilos de los selectores del menú */
+.m-select { width:100%; padding:10px; margin-top:5px; border-radius:6px; border:1px solid var(--gray-light); font-family:'DM Sans'; }
+.m-label { font-size: 0.75rem; font-weight: 700; color: var(--gray); text-transform: uppercase; }
+.m-section { padding: 15px; border-bottom: 1px solid var(--gray-light); }
 
 @media (max-width: 768px) {
 .layout { flex-direction: column; }
@@ -86,15 +91,13 @@ header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items
 
 <script>
 // =========================================================
-// ⚠️ 1. PEGA AQUÍ LA URL DEL PASO 2:
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTPNSj8Mbp0wzSSCAU2lVg5dNbRzz9RVtmiuWl2-A-64Vews98faIyTYFoc0v0DASrYg/exec";
-
-// ⚠️ 2. PON LOS NOMBRES EXACTOS DE LOS PRECEPTORES DE CONTRATURNO (Igual que en tu Excel):
-const PRECEPTORES_CONTRATURNO = ["Emanuel Gutierrez", "Lucila Betancor"];
+// ⚠️ PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
+const SCRIPT_URL = "PEGAR_AQUI_LA_URL";
 // =========================================================
 
 let ALL_STUDENTS = [];
 let configs = null;
+let currentTurno = "";
 let currentPreceptor = "";
 let currentCourse = "";
 
@@ -108,43 +111,87 @@ fetch(SCRIPT_URL + "?action=getConfig")
 ALL_STUDENTS = await alumnosRes.json();
 configs = await configRes.json();
 
-const preceptores = [...new Set(ALL_STUDENTS.map(s => s.preceptor))].filter(Boolean).sort();
-renderSidebar(preceptores);
+renderSidebarInicial();
 } catch (error) {
 document.getElementById('sidebarMenu').innerHTML = '<div style="padding:20px; color:red;">Error de conexión. Revise la URL.</div>';
 }
 }
 
-function renderSidebar(lista) {
+function renderSidebarInicial() {
 const sidebar = document.getElementById('sidebarMenu');
 sidebar.innerHTML = `
-<div style="padding: 15px; border-bottom: 1px solid var(--gray-light);">
-<label style="font-size: 0.75rem; font-weight: 700; color: var(--gray);">1. PRECEPTOR</label>
-<select onchange="filtrarPreceptor(this.value)" style="width:100%; padding:10px; margin-top:5px; border-radius:6px; border:1px solid var(--gray-light); font-family:'DM Sans';">
-<option value="">Seleccione su nombre...</option>
-${lista.map(p => `<option value="${p}">${p}</option>`).join('')}
+<div class="m-section">
+<label class="m-label">1. TURNO</label>
+<select id="selectTurno" class="m-select" onchange="filtrarTurno(this.value)">
+<option value="">Seleccione Turno...</option>
+<option value="Mañana">Mañana</option>
+<option value="Tarde">Tarde</option>
+<option value="Contraturno">Contraturno</option>
 </select>
 </div>
+
+<div id="containerPreceptor" class="m-section" style="display:none;">
+<label class="m-label">2. PRECEPTOR</label>
+<select id="selectPreceptor" class="m-select" onchange="filtrarPreceptor(this.value)">
+<option value="">Seleccione su nombre...</option>
+</select>
+</div>
+
 <div id="linksCursos" style="display:none;"></div>
 `;
 }
 
-function filtrarPreceptor(nombre) {
-currentPreceptor = nombre;
+// Cuando se elige el TURNO
+function filtrarTurno(turnoElegido) {
+currentTurno = turnoElegido;
+currentPreceptor = "";
+
+// Reseteamos las vistas de abajo
+document.getElementById('linksCursos').style.display = 'none';
 document.getElementById('mainArea').style.display = 'none';
 
-if(!nombre) {
+if(!turnoElegido) {
+document.getElementById('containerPreceptor').style.display = 'none';
+return;
+}
+
+// Buscamos solo los preceptores que pertenecen al turno elegido
+const preceptoresDelTurno = [...new Set(
+ALL_STUDENTS.filter(s => {
+// Ignora diferencias de mayúsculas/minúsculas y espacios
+return s.turno && s.turno.trim().toLowerCase() === turnoElegido.toLowerCase();
+}).map(s => s.preceptor)
+)].filter(Boolean).sort();
+
+// Llenamos el desplegable de preceptores
+const selectPrecep = document.getElementById('selectPreceptor');
+selectPrecep.innerHTML = '<option value="">Seleccione su nombre...</option>' +
+preceptoresDelTurno.map(p => `<option value="${p}">${p}</option>`).join('');
+
+document.getElementById('containerPreceptor').style.display = 'block';
+}
+
+// Cuando se elige el PRECEPTOR
+function filtrarPreceptor(nombreElegido) {
+currentPreceptor = nombreElegido;
+document.getElementById('mainArea').style.display = 'none';
+
+if(!nombreElegido) {
 document.getElementById('linksCursos').style.display = 'none';
 return;
 }
 
-document.getElementById('linksCursos').style.display = 'block';
+// Buscamos los cursos de este preceptor, en este turno
+const misAlumnos = ALL_STUDENTS.filter(s =>
+s.preceptor === nombreElegido &&
+s.turno.trim().toLowerCase() === currentTurno.toLowerCase()
+);
 
-const misAlumnos = ALL_STUDENTS.filter(s => s.preceptor === nombre);
 const misDivisiones = [...new Set(misAlumnos.map(s => s.curso))].sort();
 
 const container = document.getElementById('linksCursos');
-container.innerHTML = '<div style="padding: 15px; font-size: 0.75rem; font-weight:700; color: var(--gray);">2. MIS CURSOS</div>';
+container.style.display = 'block';
+container.innerHTML = '<div style="padding: 15px; font-size: 0.75rem; font-weight:700; color: var(--gray);">3. MIS CURSOS</div>';
 
 misDivisiones.forEach(curso => {
 const div = document.createElement('div');
@@ -159,21 +206,25 @@ container.appendChild(div);
 });
 }
 
-function cargarCurso(nombreCurso, todosMisAlumnos) {
+// Cuando se elige el CURSO
+function cargarCurso(nombreCurso, alumnosDelPreceptor) {
 currentCourse = nombreCurso;
 document.getElementById('mainArea').style.display = 'block';
-document.getElementById('courseTitle').innerText = `Curso: ${nombreCurso}`;
+document.getElementById('courseTitle').innerText = `Curso: ${nombreCurso} (${currentTurno})`;
 
-const alumnosDelCurso = todosMisAlumnos.filter(s => s.curso === nombreCurso);
-const esContraturno = PRECEPTORES_CONTRATURNO.includes(currentPreceptor);
+const alumnosDelCurso = alumnosDelPreceptor.filter(s => s.curso === nombreCurso);
+
+// La magia: Evaluamos automáticamente si estamos en Contraturno
+const esContraturno = (currentTurno.toLowerCase() === 'contraturno');
 
 document.getElementById('tableHeader').innerHTML = esContraturno
 ? `<span>Alumno</span><span>Espacio de Falta</span>`
-: `<span>Alumno</span><span>Faltó (Turno)</span>`;
+: `<span>Alumno</span><span>Faltó (Turno Completo)</span>`;
 
 const listHTML = alumnosDelCurso.map((s) => {
 const idStr = String(s.id);
 
+// Contraturno = Desplegable | Mañana/Tarde = Cuadradito Checkbox
 const controlAsistencia = esContraturno
 ? `<select id="aus_${idStr}" class="sel-espacio" onchange="colorearSelect(this)">
 <option value="">Presente</option>
@@ -214,11 +265,16 @@ row.classList.remove('absent-row');
 }
 
 async function enviarInasistencias() {
-const alumnosDelCurso = ALL_STUDENTS.filter(s => s.curso === currentCourse && s.preceptor === currentPreceptor);
-const esContraturno = PRECEPTORES_CONTRATURNO.includes(currentPreceptor);
+const esContraturno = (currentTurno.toLowerCase() === 'contraturno');
+const alumnosActuales = ALL_STUDENTS.filter(s =>
+s.curso === currentCourse &&
+s.preceptor === currentPreceptor &&
+s.turno.trim().toLowerCase() === currentTurno.toLowerCase()
+);
+
 const queue = [];
 
-alumnosDelCurso.forEach(s => {
+alumnosActuales.forEach(s => {
 const idStr = String(s.id);
 
 if (esContraturno) {
@@ -234,7 +290,8 @@ body: template.body
 .replace(/{{curso}}/g, s.curso)
 .replace(/{{espacio}}/g, espacioMarcado)
 .replace(/{{fecha}}/g, new Date().toLocaleDateString('es-AR'))
-.replace(/{{preceptor}}/g, currentPreceptor)
+.replace(/{{preceptor}}/g, currentPreceptor),
+datosRegistro: { alumno: s.nombre, curso: s.curso, espacio: espacioMarcado, preceptor: currentPreceptor }
 });
 }
 } else {
@@ -248,7 +305,8 @@ body: template.body
 .replace(/{{alumno}}/g, s.nombre)
 .replace(/{{curso}}/g, s.curso)
 .replace(/{{fecha}}/g, new Date().toLocaleDateString('es-AR'))
-.replace(/{{preceptor}}/g, currentPreceptor)
+.replace(/{{preceptor}}/g, currentPreceptor),
+datosRegistro: { alumno: s.nombre, curso: s.curso, espacio: `Turno ${currentTurno}`, preceptor: currentPreceptor }
 });
 }
 }
@@ -256,12 +314,12 @@ body: template.body
 
 if (queue.length === 0) return alert("No se ha marcado ninguna inasistencia.");
 
-const confirmacion = confirm(`¿Enviar aviso a las familias de los ${queue.length} alumno/s marcados?`);
+const confirmacion = confirm(`¿Enviar aviso y registrar la inasistencia de ${queue.length} alumno/s?`);
 if (!confirmacion) return;
 
 const btn = document.getElementById('sendBtn');
 btn.disabled = true;
-btn.innerText = "🚀 Enviando...";
+btn.innerText = "🚀 Registrando...";
 
 try {
 await fetch(SCRIPT_URL, {
@@ -271,8 +329,10 @@ headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({ queue: queue })
 });
 
-alert(`¡Éxito! Se enviaron los avisos.`);
-cargarCurso(currentCourse, ALL_STUDENTS.filter(s => s.preceptor === currentPreceptor));
+alert(`¡Éxito! Se enviaron los avisos y se guardó el registro.`);
+
+// Recargamos el curso para limpiar las selecciones
+cargarCurso(currentCourse, alumnosActuales);
 
 } catch (error) {
 alert("Hubo un error al enviar. Reintente.");
