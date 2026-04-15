@@ -67,7 +67,9 @@ header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items
 </div>
 
 <script>
+// =========================================================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZEgvhdehjWLABe8sLGxPzjRm-gd6emNcC2nXvesrIrjap5T5YV5kGTvXRmfofggqVCA/exec";
+// =========================================================
 
 let ALL_STUDENTS = [];
 let templateData = null;
@@ -86,7 +88,7 @@ templateData = await configRes.json();
 const preceptores = [...new Set(ALL_STUDENTS.map(s => s.preceptor))].filter(Boolean).sort();
 mostrarSelectorPreceptor(preceptores);
 } catch (error) {
-document.getElementById('sidebarMenu').innerHTML = '<div style="padding:20px; color:red;">Error de conexión.</div>';
+document.getElementById('sidebarMenu').innerHTML = '<div style="padding:20px; color:red;">Error de conexión. Revise la URL.</div>';
 }
 }
 
@@ -97,7 +99,7 @@ sidebar.innerHTML = `
 <label style="font-size: 0.7rem; font-weight: 700; color: var(--gray); text-transform: uppercase; margin-bottom: 10px; display: block;">Identificación</label>
 <select onchange="filtrarPorPreceptor(this.value)" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--gray-light);">
 <option value="">Seleccione su nombre...</option>
-\${lista.map(p => \`<option value="\${p}">\${p}</option>\`).join('')}
+${lista.map(p => `<option value="${p}">${p}</option>`).join('')}
 </select>
 </div>
 <div id="divisionLinks"></div>
@@ -115,7 +117,7 @@ container.innerHTML = '<p style="padding: 15px; font-size: 12px; color: gray;">M
 misDivisiones.forEach(curso => {
 const div = document.createElement('div');
 div.className = "ditem";
-div.innerHTML = \`<span>\${curso}</span>\`;
+div.innerHTML = `<span>${curso}</span>`;
 div.onclick = (e) => {
 document.querySelectorAll('.ditem').forEach(el => el.classList.remove('active'));
 e.currentTarget.classList.add('active');
@@ -128,24 +130,24 @@ container.appendChild(div);
 function cargarCurso(nombreCurso, todosMisAlumnos) {
 currentCourse = nombreCurso;
 document.getElementById('mainArea').style.display = 'block';
-document.getElementById('courseTitle').innerText = \`Curso: \${nombreCurso}\`;
+document.getElementById('courseTitle').innerText = `Curso: ${nombreCurso}`;
 const alumnosDelCurso = todosMisAlumnos.filter(s => s.curso === nombreCurso);
 
 const listHTML = alumnosDelCurso.map((s, index) => {
-const idStr = String(s.id); // Forzamos ID a texto
-return \`
-<div class="trow \${absentees.has(idStr) ? 'absent-row' : ''}">
-<span>\${index + 1}</span>
-<span style="font-weight:500;">\${s.nombre}</span>
-<span style="font-size:0.85rem; color:gray;">\${s.dni}</span>
-<span style="font-size:0.85rem; color:gray;">\${s.email}</span>
+const idStr = String(s.id);
+return `
+<div class="trow ${absentees.has(idStr) ? 'absent-row' : ''}">
+<span>${index + 1}</span>
+<span style="font-weight:500;">${s.nombre}</span>
+<span style="font-size:0.85rem; color:gray;">${s.dni}</span>
+<span style="font-size:0.85rem; color:gray;">${s.email}</span>
 <div>
 <label class="cwrap">
-<input type="checkbox" \${absentees.has(idStr) ? 'checked' : ''} onchange="toggleAbsent('\${idStr}')">
+<input type="checkbox" ${absentees.has(idStr) ? 'checked' : ''} onchange="toggleAbsent('${idStr}')">
 <div class="clbl"></div>
 </label>
 </div>
-</div>\`;
+</div>`;
 }).join('');
 document.getElementById('studentList').innerHTML = listHTML;
 }
@@ -168,7 +170,7 @@ return templateStr
 
 async function enviarInasistencias() {
 if (absentees.size === 0) return alert("No hay alumnos marcados.");
-const confirmacion = confirm(\`¿Enviar aviso a las familias de los \${absentees.size} alumnos marcados?\`);
+const confirmacion = confirm(`¿Enviar aviso a las familias de los ${absentees.size} alumnos marcados?`);
 if (!confirmacion) return;
 const btn = document.getElementById('sendBtn');
 btn.disabled = true;
@@ -190,7 +192,7 @@ mode: 'no-cors',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({ queue: queue })
 });
-alert(\`¡Éxito! Se enviaron \${queue.length} correos.\`);
+alert(`¡Éxito! Se enviaron ${queue.length} correos.`);
 absentees.clear();
 filtrarPorPreceptor(currentPreceptor);
 } catch (error) {
