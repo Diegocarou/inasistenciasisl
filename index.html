@@ -34,6 +34,26 @@ header{background:var(--navy);color:#fff;padding:0 2rem;display:flex;align-items
 .ditem{padding:12px 20px;cursor:pointer;border-left:4px solid transparent;}
 .ditem:hover{background:var(--cream);}
 .ditem.active{background:var(--cream);border-left-color:var(--navy);font-weight:600;}
+  /* =========================================
+DISEÑO MÓVIL (Celulares)
+#ERROR!
+@media (max-width: 768px) {
+/* 1. Apila el diseño (Menú arriba, Tabla abajo) */
+.layout { flex-direction: column; }
+.sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--navy); }
+.main { padding: 1rem; }
+
+/* 2. Achica la tabla: Oculta Número, DNI y Email */
+.thead, .trow { grid-template-columns: 1fr 60px; padding: 12px 10px; gap: 10px; }
+.thead > span:nth-child(1), .trow > span:nth-child(1),
+.thead > span:nth-child(3), .trow > span:nth-child(3),
+.thead > span:nth-child(4), .trow > span:nth-child(4) { display: none; }
+
+/* 3. Ajustes de tamaño de texto para pantallas chicas */
+.htitle { font-size: 1rem; }
+.trow > span:nth-child(2) { font-size: 0.9rem; }
+.btn { width: 100%; text-align: center; margin-top: 10px; }
+}
 </style>
 </head>
 <body onload="iniciarSistema()">
