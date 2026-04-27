@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ISL - Asistencia</title>
+  <title>ISL - Sistema de Asistencia</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root { --navy: #2B326B; --gold: #C2A251; --red: #D82226; --bg: #F8FAFC; }
@@ -13,7 +13,8 @@
     #loginScreen { position: fixed; inset: 0; background: var(--navy); display: flex; align-items: center; justify-content: center; z-index: 200; }
     .login-box { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .login-input { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-    .btn-login { background: var(--gold); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; }
+    .btn-login { background: var(--gold); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; transition: background 0.3s;}
+    .btn-login:disabled { background: #CBD5E1; cursor: not-allowed; }
     
     /* App Styles */
     header { background: var(--navy); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
@@ -23,22 +24,23 @@
     .main { padding: 30px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box;}
     
     .m-select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-size: 14px; box-sizing: border-box; }
-    .course-btn { padding: 12px 15px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-weight: 600; }
-    .course-btn.active { background: var(--gold); color: white; }
+    .course-btn { padding: 12px 15px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    .course-btn.active { background: var(--gold); color: white; border-color: var(--gold); }
 
-    .student-card { background: white; padding: 16px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0; }
+    .student-card { background: white; padding: 16px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0; transition: all 0.2s; }
     .student-card.is-absent { border-left: 6px solid var(--red); background: #FFF1F2; }
 
     .absent-toggle { position: relative; display: inline-block; width: 100px; height: 36px; }
     .absent-toggle input { display: none; }
-    .slider { position: absolute; cursor: pointer; inset: 0; background-color: #E2E8F0; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #64748B; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: #E2E8F0; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #64748B; transition: 0.3s; }
     .slider:before { content: 'PRESENTE'; }
     input:checked + .slider { background-color: var(--red); color: white; }
     input:checked + .slider:before { content: 'AUSENTE'; }
 
     .footer-actions { position: fixed; bottom: 0; right: 0; left: 0; padding: 20px; background: white; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; }
     @media (min-width: 769px) { .footer-actions { left: 320px; } }
-    .btn-send { background: var(--navy); color: white; padding: 15px 40px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .btn-send { background: var(--navy); color: white; padding: 15px 40px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.3s; }
+    .btn-send:disabled { background: #CBD5E1; cursor: not-allowed; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -62,7 +64,7 @@
 
     <div class="layout">
       <aside class="sidebar">
-        <label>1: TURNO</label>
+        <label style="font-size:11px; font-weight:700; color:#64748B;">1: TURNO</label>
         <select id="selTurno" class="m-select" onchange="cambiarTurno()">
           <option value="">Seleccione...</option>
           <option value="Mañana">Mañana</option>
@@ -70,15 +72,15 @@
           <option value="Contraturno">Contraturno</option>
         </select>
 
-        <label>2: PRECEPTOR</label>
+        <label style="font-size:11px; font-weight:700; color:#64748B;">2: PRECEPTOR</label>
         <select id="selPreceptor" class="m-select" onchange="cambiarPreceptor()"></select>
 
-        <label>3: CURSO</label>
+        <label style="font-size:11px; font-weight:700; color:#64748B;">3: CURSO</label>
         <div id="listaCursos"></div>
       </aside>
 
       <main class="main">
-        <h2 id="viewTitle">Bienvenido</h2>
+        <h2 id="viewTitle" style="color: var(--navy);">Bienvenido</h2>
         <div id="studentList"></div>
         <div style="height: 100px;"></div>
       </main>
@@ -90,8 +92,10 @@
   </div>
 
   <script>
-    // IMPORTANTE: REEMPLAZA ESTA URL CON TU NUEVA URL DE GOOGLE APPS SCRIPT
-    const API_URL = "https://script.google.com/macros/s/AKfycbzZksL1UXFg_Na2hDJtV9_lYVlVcfF3ovuKiMV9KV5b2wGSsHSUz2cSqOAHDI4FkwFknA/exec"; 
+    // =========================================================
+    // IMPORTANTE: PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
+    // =========================================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbz97R_uk8Ta0jpUeoWnP6z0w9ZO7TjCSNUGEaFLBkQfKQ8XsTT-sK8Fm8KYSH2nZxw0pw/exec"; 
     
     let DATA = {};
     let state = { email: '', turno: '', preceptor: '', curso: '' };
@@ -108,8 +112,13 @@
       err.classList.add('hidden');
 
       try {
+        // Petición con formato texto para evitar error CORS
         const response = await fetch(API_URL, {
           method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+          },
+          redirect: 'follow', // Sigue la redirección interna de Google
           body: JSON.stringify({ action: 'login', email: email })
         });
         
@@ -126,6 +135,7 @@
           err.classList.remove('hidden');
         }
       } catch (error) {
+        console.error(error);
         err.innerText = "Error de conexión. Verifica la URL de la API.";
         err.classList.remove('hidden');
       } finally {
@@ -134,7 +144,6 @@
       }
     }
 
-    // Lógica de UI (Mantenida igual)
     function cambiarTurno() {
       state.turno = document.getElementById('selTurno').value;
       const preceptores = [...new Set(DATA.students.filter(s => s.turno == state.turno).map(s => s.preceptor))].sort();
@@ -189,10 +198,17 @@
 
       try {
         const payload = { queue: queue, resumen: { curso: state.curso, turno: state.turno, total: document.querySelectorAll('.check-absent').length } };
+        
+        // Petición con formato texto para evitar error CORS
         const response = await fetch(API_URL, {
           method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+          },
+          redirect: 'follow', // Sigue la redirección interna de Google
           body: JSON.stringify({ action: 'enviar', email: state.email, payload: payload })
         });
+        
         const res = await response.json();
         
         if(res.success) {
@@ -204,13 +220,18 @@
             btn.innerText = "Confirmar Asistencia";
         }
       } catch (error) {
+        console.error(error);
         alert("Error de conexión al enviar.");
         btn.disabled = false;
         btn.innerText = "Confirmar Asistencia";
       }
     }
 
-    function resetMain() { document.getElementById('studentList').innerHTML = ''; document.getElementById('footer').classList.add('hidden'); document.getElementById('viewTitle').innerText = 'Bienvenido'; }
+    function resetMain() { 
+      document.getElementById('studentList').innerHTML = ''; 
+      document.getElementById('footer').classList.add('hidden'); 
+      document.getElementById('viewTitle').innerText = 'Bienvenido'; 
+    }
   </script>
 </body>
 </html>
