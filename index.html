@@ -12,12 +12,15 @@
     /* Login Styles */
     #loginScreen { position: fixed; inset: 0; background: var(--navy); display: flex; align-items: center; justify-content: center; z-index: 200; }
     .login-box { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .login-input { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-    .btn-login { background: var(--gold); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; transition: background 0.3s;}
+    .login-input { width: 100%; padding: 15px; margin-top: 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+    .btn-login { background: var(--gold); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; transition: background 0.3s; margin-top: 20px;}
     .btn-login:disabled { background: #CBD5E1; cursor: not-allowed; }
     
     /* App Styles */
     header { background: var(--navy); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+    .header-user { display: flex; align-items: center; gap: 15px; }
+    .btn-logout { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 700; }
+    
     .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 60px); }
     @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
     .sidebar { background: white; padding: 25px; border-right: 1px solid #E2E8F0; }
@@ -49,8 +52,9 @@
   <div id="loginScreen">
     <div class="login-box">
       <h2 style="color:var(--navy); margin-top:0">Instituto Santa Lucía</h2>
-      <p style="color:#64748B; font-size:14px">Ingrese su correo institucional para continuar</p>
+      <p style="color:#64748B; font-size:14px">Ingrese sus credenciales de acceso</p>
       <input type="email" id="emailInput" class="login-input" placeholder="usuario@isantalucia.edu.ar">
+      <input type="password" id="passInput" class="login-input" placeholder="Contraseña">
       <button class="btn-login" onclick="iniciarSesion()" id="loginBtn">Ingresar al Sistema</button>
       <p id="loginError" style="color:var(--red); font-size:13px; margin-top:10px;" class="hidden"></p>
     </div>
@@ -59,7 +63,10 @@
   <div id="app" class="hidden">
     <header>
       <div style="font-weight:700">SISTEMA DE ASISTENCIA</div>
-      <div id="userLabel" style="font-size:12px; font-weight:600; color:var(--gold)"></div>
+      <div class="header-user">
+        <div id="userLabel" style="font-size:12px; font-weight:600; color:var(--gold)"></div>
+        <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+      </div>
     </header>
 
     <div class="layout">
@@ -93,33 +100,46 @@
 
   <script>
     // =========================================================
-    // IMPORTANTE: PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
+    const API_URL = "https://script.google.com/macros/s/AKfycbxizIafPkj-4zzmIpTyYZGTyqxW7eAFilxZEGA_RIdgYQ2un9Ulg5EBanmxxOgLczR3BA/exec"; 
     // =========================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbz97R_uk8Ta0jpUeoWnP6z0w9ZO7TjCSNUGEaFLBkQfKQ8XsTT-sK8Fm8KYSH2nZxw0pw/exec"; 
     
     let DATA = {};
     let state = { email: '', turno: '', preceptor: '', curso: '' };
 
-    async function iniciarSesion() {
+    // Auto-Login: Verifica si la sesión está guardada al abrir la página
+    window.onload = () => {
+      const savedEmail = localStorage.getItem('isl_email');
+      const savedPass = localStorage.getItem('isl_pass');
+      
+      if (savedEmail && savedPass) {
+        document.getElementById('emailInput').value = savedEmail;
+        document.getElementById('passInput').value = savedPass;
+        iniciarSesion(true); // Inicia sesión silenciosamente
+      }
+    };
+
+    async function iniciarSesion(isAutoLogin = false) {
       const email = document.getElementById('emailInput').value;
+      const pass = document.getElementById('passInput').value;
       const btn = document.getElementById('loginBtn');
       const err = document.getElementById('loginError');
       
-      if(!email) return;
+      if(!email || !pass) {
+        err.innerText = "Complete ambos campos.";
+        err.classList.remove('hidden');
+        return;
+      }
 
       btn.innerText = "Verificando...";
       btn.disabled = true;
       err.classList.add('hidden');
 
       try {
-        // Petición con formato texto para evitar error CORS
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
-          },
-          redirect: 'follow', // Sigue la redirección interna de Google
-          body: JSON.stringify({ action: 'login', email: email })
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          redirect: 'follow',
+          body: JSON.stringify({ action: 'login', email: email, password: pass })
         });
         
         const res = await response.json();
@@ -127,12 +147,18 @@
         if (res.autorizado) {
           DATA = res;
           state.email = email;
+          
+          // Guardar sesión para que no se cierre
+          localStorage.setItem('isl_email', email);
+          localStorage.setItem('isl_pass', pass);
+
           document.getElementById('userLabel').innerText = email;
           document.getElementById('loginScreen').classList.add('hidden');
           document.getElementById('app').classList.remove('hidden');
         } else {
           err.innerText = res.error;
           err.classList.remove('hidden');
+          localStorage.clear(); // Limpiar si la contraseña cambió
         }
       } catch (error) {
         console.error(error);
@@ -142,6 +168,11 @@
         btn.innerText = "Ingresar al Sistema";
         btn.disabled = false;
       }
+    }
+
+    function cerrarSesion() {
+      localStorage.clear();
+      location.reload();
     }
 
     function cambiarTurno() {
@@ -161,8 +192,13 @@
 
     function cargarCurso(curso, el) {
       state.curso = curso;
-      document.querySelectorAll('.course-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
+      
+      // Manejo visual del botón de curso activo
+      if(el) {
+        document.querySelectorAll('.course-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+      }
+      
       document.getElementById('viewTitle').innerText = curso;
       document.getElementById('footer').classList.remove('hidden');
 
@@ -199,13 +235,10 @@
       try {
         const payload = { queue: queue, resumen: { curso: state.curso, turno: state.turno, total: document.querySelectorAll('.check-absent').length } };
         
-        // Petición con formato texto para evitar error CORS
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
-          },
-          redirect: 'follow', // Sigue la redirección interna de Google
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          redirect: 'follow',
           body: JSON.stringify({ action: 'enviar', email: state.email, payload: payload })
         });
         
@@ -213,7 +246,14 @@
         
         if(res.success) {
             alert("Asistencia registrada con éxito.");
-            location.reload();
+            
+            // SOLUCIÓN: En lugar de recargar la página, recargamos el curso actual
+            // Esto mantiene la sesión y limpia las casillas marcadas.
+            const botonActivo = document.querySelector('.course-btn.active');
+            cargarCurso(state.curso, botonActivo);
+            btn.disabled = false;
+            btn.innerText = "Confirmar Asistencia";
+
         } else {
             alert("Error al guardar: " + res.error);
             btn.disabled = false;
