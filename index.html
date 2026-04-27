@@ -1,379 +1,226 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISL – Gestión de Asistencia</title>
-
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Asistencia SL">
-<meta name="theme-color" content="#2B326B">
-<link rel="manifest" href="manifest.json?v=3">
-<link rel="apple-touch-icon" href="icon.png?v=3">
-
+<base target="_top">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
---navy: #2B326B;
---navy-light: #3D468F;
---gold: #C2A251;
---red: #D82226;
---red-soft: #FEE2E2;
---green: #257C36;
---bg-app: #F8FAFC;
---text-main: #1E293B;
---text-muted: #64748B;
+--navy: #2B326B; --navy-light: #3D468F; --gold: #C2A251; --red: #D82226;
+--red-soft: #FEE2E2; --bg: #F8FAFC; --text: #1E293B; --muted: #64748B;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-body {
-font-family: 'Inter', sans-serif;
-background-color: var(--bg-app);
-color: var(--text-main);
-min-height: 100vh;
-}
+/* Pantallas de Bloqueo */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--navy); color: white; text-align: center; }
+.hidden { display: none !important; }
 
-/* --- CABECERA --- */
-header {
-background: var(--navy);
-color: #fff;
-padding: 12px 5%;
-display: flex;
-align-items: center;
-justify-content: space-between;
-box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-position: sticky;
-top: 0;
-z-index: 100;
-}
+/* Layout */
+header { background: var(--navy); color: white; padding: 12px 5%; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15); position: sticky; top: 0; }
 .header-brand { display: flex; align-items: center; gap: 15px; }
 .header-logo { width: 45px; height: auto; }
-.header-title h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; letter-spacing: 0.5px; margin-bottom: 2px; }
-.header-title p { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); opacity: 0.9; font-weight: 600;}
+.layout { display: flex; max-width: 1400px; margin: 0 auto; }
 
-/* --- LAYOUT --- */
-.layout { display: flex; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 75px); }
-
-/* --- SIDEBAR --- */
-.sidebar {
-width: 300px;
-background: #fff;
-border-right: 1px solid #E2E8F0;
-padding: 25px 20px;
-display: flex;
-flex-direction: column;
-gap: 20px;
-box-shadow: 2px 0 10px rgba(0,0,0,0.02);
-}
-.m-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
-.m-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; transition: border 0.2s; cursor: pointer; }
-.m-select:focus { border-color: var(--navy); background: #fff; }
-
-.course-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.ditem {
-padding: 12px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-font-size: 0.9rem; font-weight: 500; color: var(--text-main); border: 1px solid transparent;
-}
-.ditem:hover { background: #F1F5F9; color: var(--navy); border-color: #E2E8F0; }
-.ditem.active { background: var(--navy); color: #fff; box-shadow: 0 4px 12px rgba(43, 50, 107, 0.2); font-weight: 600; }
-
-/* --- MAIN AREA --- */
+.sidebar { width: 300px; background: white; border-right: 1px solid #E2E8F0; padding: 25px 20px; min-height: calc(100vh - 70px); }
 .main { flex: 1; padding: 30px 5%; }
-.page-header { margin-bottom: 25px; }
-.page-header h2 { font-size: 1.8rem; color: var(--navy); font-weight: 700; }
 
-/* --- TABLA DE ALUMNOS --- */
-.tcard { background: #fff; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-.theader {
-display: grid; grid-template-columns: 1fr auto; padding: 15px 25px;
-background: #F1F5F9; border-bottom: 1px solid #CBD5E1;
-color: var(--text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-}
-.trow {
-display: grid; grid-template-columns: 1fr auto; padding: 15px 25px;
-align-items: center; border-bottom: 1px solid #F1F5F9; transition: background 0.2s;
-}
-.trow:last-child { border-bottom: none; }
-.trow:hover { background: #F8FAFC; }
-.student-name { font-weight: 500; font-size: 0.95rem; }
+/* Componentes */
+.m-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+.m-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-size: 0.9rem; margin-bottom: 20px; outline: none; }
 
-.absent-row { background-color: var(--red-soft) !important; }
-.absent-row .student-name { color: var(--red); font-weight: 700; }
+.ditem { padding: 12px 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; font-weight: 500; margin-bottom: 5px; }
+.ditem:hover { background: #F1F5F9; color: var(--navy); }
+.ditem.active { background: var(--navy); color: white; box-shadow: 0 4px 12px rgba(43,50,107,0.2); }
 
-/* --- CONTROLES / BOTONES --- */
+.tcard { background: white; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.theader { display: grid; grid-template-columns: 1fr auto; padding: 15px 25px; background: #F1F5F9; border-bottom: 1px solid #CBD5E1; color: var(--muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+.trow { display: grid; grid-template-columns: 1fr auto; padding: 15px 25px; align-items: center; border-bottom: 1px solid #F1F5F9; }
+.absent-row { background-color: var(--red-soft) !important; color: var(--red); font-weight: 700; }
+
+/* Botones */
 .cwrap input { display: none; }
-.clbl {
-padding: 8px 20px; border-radius: 6px; border: 1.5px solid #CBD5E1; background: #fff;
-cursor: pointer; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-transition: all 0.2s; display: inline-block; min-width: 100px; text-align: center; color: var(--text-muted);
-}
+.clbl { padding: 8px 20px; border-radius: 6px; border: 1.5px solid #CBD5E1; cursor: pointer; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; min-width: 100px; text-align: center; display: inline-block; background: white; }
 .clbl::before { content: 'Presente'; }
-.cwrap input:checked + .clbl { background: var(--red); border-color: var(--red); color: #fff; }
-.cwrap input:checked + .clbl::before { content: 'Ausente'; }
+input:checked + .clbl { background: var(--red); border-color: var(--red); color: white; }
+input:checked + .clbl::before { content: 'Ausente'; }
 
-/* Contraturno Pills */
-.ct-opts { display: flex; gap: 8px; }
-.ct-opts input { display: none; }
-.ct-opts span { padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; font-size: 0.75rem; font-weight: 700; background: #fff; cursor: pointer; color: var(--text-muted); transition: all 0.2s;}
-.ct-opts input:checked + span { background: var(--red); color: white; border-color: var(--red); }
+.btn-send { width: 100%; padding: 18px; border-radius: 10px; border: none; background: var(--navy); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 30px; box-shadow: 0 10px 15px rgba(43,50,107,0.2); }
 
-.btn-send {
-margin-top: 30px; padding: 18px; width: 100%; border-radius: 10px; border: none;
-background: var(--navy); color: #fff; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px;
-cursor: pointer; transition: transform 0.2s, background 0.3s;
-box-shadow: 0 10px 15px -3px rgba(43, 50, 107, 0.3);
-}
-.btn-send:active { transform: scale(0.98); }
-.btn-send:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-
-/* --- PANTALLAS SUPERPUESTAS (LOGIN Y CARGA) --- */
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
-#loginOverlay { background: var(--navy); color: #fff; }
-.login-card { text-align: center; max-width: 350px; width: 90%; background: rgba(255,255,255,0.05); padding: 40px 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
-#pinInput {
-width: 100%; padding: 15px; margin: 25px 0; border-radius: 8px; border: none;
-text-align: center; font-size: 1.5rem; letter-spacing: 8px; outline: none; color: var(--navy); font-weight: 700;
-}
-
-#loaderOverlay { background: rgba(255,255,255,0.95); z-index: 8888; display: none; }
-.spinner { width: 50px; height: 50px; border: 4px solid #E2E8F0; border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+.spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-@media (max-width: 768px) {
-.layout { flex-direction: column; }
-.sidebar { width: 100%; border-right: none; border-bottom: 1px solid #E2E8F0; padding: 15px; }
-.main { padding: 20px 15px; }
-.header-title h1 { font-size: 1.2rem; }
-}
+@media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { width: 100%; min-height: auto; } }
 </style>
 </head>
-<body onload="verificarSesion()">
+<body>
 
-<div id="loginOverlay" class="overlay">
-<div class="login-card">
-<img src="logo-isl.png" alt="Logo" style="width: 100px; margin-bottom: 20px;">
-<h1 style="font-family:'Playfair Display'; font-size: 1.8rem; margin-bottom: 5px;">Instituto Santa Lucía</h1>
-<p style="color: var(--gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">Acceso Preceptores</p>
-<input type="password" id="pinInput" placeholder="PIN" autocomplete="off">
-<button class="btn-send" style="background: var(--gold); color: var(--navy); box-shadow: none; margin-top: 0; padding: 15px;" onclick="ingresar()">Ingresar al Sistema</button>
-</div>
-</div>
-
-<div id="loaderOverlay" class="overlay">
+<div id="loader" class="overlay">
 <div class="spinner"></div>
-<p style="margin-top:20px; font-weight:700; color:var(--navy); font-size:1.1rem; text-transform:uppercase; letter-spacing:1px;">Conectando al Registro...</p>
+<p style="margin-top:20px;">Verificando acceso institucional...</p>
 </div>
 
+<div id="denied" class="overlay hidden">
+<h1 style="color: var(--gold);">Acceso Denegado</h1>
+<p id="userMail" style="margin: 15px 0; opacity: 0.8;"></p>
+<p>Tu cuenta no está en la lista de preceptores autorizados.<br>Si crees que es un error, contacta a Jefatura.</p>
+</div>
+
+<div id="app" class="hidden">
 <header>
 <div class="header-brand">
-<img src="logo-isl.png" class="header-logo" alt="Logo ISL">
-<div class="header-title">
-<h1>Instituto Santa Lucía</h1>
-<p>Gestión de Inasistencias</p>
+<img src="https://i.ibb.co/vzY3qWb/logo-isl.png" class="header-logo">
+<div>
+<h1 style="font-family:'Playfair Display'; margin:0; font-size: 1.4rem;">Instituto Santa Lucía</h1>
+<p style="margin:0; font-size: 0.6rem; text-transform: uppercase; color: var(--gold); letter-spacing: 1px;">Gestión de Inasistencias</p>
 </div>
 </div>
+<div id="userLabel" style="font-size: 0.7rem; color: var(--gold); font-weight: 600;"></div>
 </header>
 
 <div class="layout">
 <aside class="sidebar">
-<div>
-<label class="m-label">Turno Escolar</label>
-<select onchange="cambiarTurno(this.value)" class="m-select" id="selTurno">
+<label class="m-label">Turno</label>
+<select id="selTurno" onchange="cambiarTurno(this.value)" class="m-select">
 <option value="">Seleccione...</option>
 <option value="Mañana">Mañana</option>
 <option value="Tarde">Tarde</option>
 <option value="Contraturno">Contraturno</option>
 </select>
-</div>
 
 <div id="secPreceptor" style="display:none;">
-<label class="m-label">Preceptor Responsable</label>
+<label class="m-label">Preceptor</label>
 <select id="selPreceptor" onchange="cambiarPreceptor(this.value)" class="m-select"></select>
 </div>
 
-<div id="linksCursos" class="course-list"></div>
+<div id="linksCursos"></div>
 </aside>
 
 <main class="main" id="mainArea" style="display:none;">
-<div class="page-header">
-<h2 id="courseTitle"></h2>
-</div>
-
+<h2 id="courseTitle" style="margin-bottom:20px; color:var(--navy);"></h2>
 <div class="tcard">
-<div class="theader">
-<span>Estudiante</span>
-<span>Estado / Acciones</span>
-</div>
+<div class="theader"><span>Estudiante</span><span>Asistencia</span></div>
 <div id="studentList"></div>
 </div>
-
-<button class="btn-send" id="sendBtn" onclick="enviar()">Confirmar Asistencia (0 Faltas)</button>
+<button class="btn-send" id="sendBtn" onclick="enviar()">Confirmar Asistencia</button>
 </main>
+</div>
 </div>
 
 <script>
-// === REEMPLAZAR ESTA URL POR LA TUYA DE APPS SCRIPT ===
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5u3lvjtzu5viRl2MytBzG-00KbsVID6tTRASPZweWDLBqogJxS1RCT5XwpTMYydvPkA/exec";
-// ======================================================
+let ALL_STUDENTS = [];
+let configs = null;
+let currentTurno = "";
+let currentPreceptor = "";
+let currentCourse = "";
 
-const PIN_SECRETO = "1234"; // Acá podés cambiar la clave de los preceptores
+window.onload = () => {
+google.script.run.withSuccessHandler(validarAcceso).verificarAcceso();
+};
 
-let ALL_STUDENTS = []; let configs = null;
-let currentTurno = ""; let currentPreceptor = ""; let currentCourse = "";
-
-function verificarSesion() {
-if(sessionStorage.getItem('accesoPermitido') === 'true') {
-document.getElementById('loginOverlay').style.display = 'none';
-iniciar();
-}
-}
-
-function ingresar() {
-const input = document.getElementById('pinInput').value;
-if(input === PIN_SECRETO) {
-sessionStorage.setItem('accesoPermitido', 'true');
-document.getElementById('loginOverlay').style.display = 'none';
-iniciar();
+function validarAcceso(res) {
+if (res.autorizado) {
+document.getElementById('loader').classList.add('hidden');
+document.getElementById('app').classList.remove('hidden');
+document.getElementById('userLabel').innerText = res.email;
+iniciarData();
 } else {
-alert("❌ PIN Incorrecto. Consulte con Jefatura.");
-document.getElementById('pinInput').value = "";
+document.getElementById('loader').classList.add('hidden');
+document.getElementById('userMail').innerText = res.email;
+document.getElementById('denied').classList.remove('hidden');
 }
 }
 
-async function iniciar() {
-document.getElementById('loaderOverlay').style.display = 'flex'; // Mostrar carga
-try {
-const [al, co] = await Promise.all([fetch(SCRIPT_URL+"?action=getStudents"), fetch(SCRIPT_URL+"?action=getConfig")]);
-ALL_STUDENTS = await al.json(); configs = await co.json();
-ALL_STUDENTS.forEach((s, i) => { if(!s.id) s.id = "id_"+i; });
-document.getElementById('loaderOverlay').style.display = 'none'; // Ocultar carga
-} catch (error) {
-alert("Error de conexión. Reintente recargando la página.");
-document.getElementById('loaderOverlay').style.display = 'none';
-}
+function iniciarData() {
+google.script.run.withSuccessHandler(s => {
+ALL_STUDENTS = s;
+google.script.run.withSuccessHandler(c => { configs = c; }).getConfig();
+}).getStudents();
 }
 
 function cambiarTurno(t) {
-currentTurno = t; document.getElementById('secPreceptor').style.display = t ? 'block' : 'none';
+currentTurno = t;
+document.getElementById('secPreceptor').style.display = t ? 'block' : 'none';
 document.getElementById('mainArea').style.display = 'none';
 const lista = [...new Set(ALL_STUDENTS.filter(s => s.turno?.toLowerCase() === t.toLowerCase()).map(s => s.preceptor))].sort();
 document.getElementById('selPreceptor').innerHTML = '<option value="">Seleccione...</option>' + lista.map(p => `<option value="${p}">${p}</option>`).join('');
 }
 
 function cambiarPreceptor(p) {
-currentPreceptor = p; document.getElementById('mainArea').style.display = 'none';
+currentPreceptor = p;
+document.getElementById('mainArea').style.display = 'none';
 const cursos = [...new Set(ALL_STUDENTS.filter(s => s.preceptor === p && s.turno?.toLowerCase() === currentTurno.toLowerCase()).map(s => s.curso))].sort();
 document.getElementById('linksCursos').innerHTML = cursos.map(c => `<div class="ditem" onclick="cargarCurso('${c}')">${c}</div>`).join('');
 }
 
 function cargarCurso(c) {
-currentCourse = c; document.getElementById('mainArea').style.display = 'block';
-document.getElementById('courseTitle').innerText = "Curso: " + c;
+currentCourse = c;
+document.getElementById('mainArea').style.display = 'block';
+document.getElementById('courseTitle').innerText = c;
 document.querySelectorAll('.ditem').forEach(el => el.classList.toggle('active', el.innerText === c));
 
-// Verificación de Anti-Doble Envío
-const fechaHoy = new Date().toLocaleDateString('es-AR');
-const cacheKey = `enviado_${currentTurno}_${c}_${fechaHoy}`;
-
-if(localStorage.getItem(cacheKey)) {
-document.getElementById('studentList').innerHTML = `
-<div style="padding:60px 20px; text-align:center; background:#fff;">
-<div style="font-size:3.5rem; margin-bottom:15px;">✅</div>
-<h3 style="color:var(--green); font-weight:700; font-size:1.4rem;">Asistencia Enviada</h3>
-<p style="color:var(--text-muted); margin-top:8px; font-size:0.95rem;">El reporte de este curso ya fue procesado y enviado a Jefatura en el día de hoy.</p>
-</div>`;
+// Verificación de Anti-Doble Envío Local
+const hoy = new Date().toLocaleDateString();
+if(localStorage.getItem(`envio_${c}_${hoy}`)) {
+document.getElementById('studentList').innerHTML = '<div style="padding:40px; text-align:center;">✅ Asistencia ya enviada hoy.</div>';
 document.getElementById('sendBtn').style.display = 'none';
 return;
 }
 
 document.getElementById('sendBtn').style.display = 'block';
 const alumnos = ALL_STUDENTS.filter(s => s.curso === c && s.preceptor === currentPreceptor && s.turno?.toLowerCase() === currentTurno.toLowerCase());
-const esC = currentTurno.toLowerCase() === 'contraturno';
 
-// Armado de la lista con los nuevos botones estéticos
 document.getElementById('studentList').innerHTML = alumnos.map(s => `
 <div class="trow">
 <span class="student-name">${s.apellido}, ${s.nombre}</span>
-<div>${esC ? `<div class="ct-opts" id="ctrl_${s.id}"><label><input type="checkbox" value="EF" onchange="actualizarContador()"><span>Ed. Física</span></label><label><input type="checkbox" value="FR" onchange="actualizarContador()"><span>Francés</span></label><label><input type="checkbox" value="INF" onchange="actualizarContador()"><span>Informática</span></label></div>` : `<label class="cwrap"><input type="checkbox" id="ctrl_${s.id}" onchange="this.closest('.trow').classList.toggle('absent-row', this.checked); actualizarContador();"><div class="clbl"></div></label>`}</div>
+<label class="cwrap">
+<input type="checkbox" id="ctrl_${s.id}" onchange="this.closest('.trow').classList.toggle('absent-row', this.checked); actualizarContador();">
+<div class="clbl"></div>
+</label>
 </div>`).join('');
-
 actualizarContador();
 }
 
 function actualizarContador() {
-const alumnos = ALL_STUDENTS.filter(s => s.curso === currentCourse && s.preceptor === currentPreceptor && s.turno?.toLowerCase() === currentTurno.toLowerCase());
-const esC = currentTurno.toLowerCase() === 'contraturno';
-let faltas = 0;
-
-alumnos.forEach(s => {
-if(esC) {
-if(document.querySelectorAll(`#ctrl_${s.id} input:checked`).length > 0) faltas++;
-} else {
-if(document.getElementById(`ctrl_${s.id}`).checked) faltas++;
-}
-});
-
+const faltas = document.querySelectorAll('input:checked').length;
 const btn = document.getElementById('sendBtn');
-if(faltas === 0) {
-btn.innerText = "Confirmar Asistencia (0 Faltas)";
-btn.style.background = "var(--navy)";
-} else {
-btn.innerText = `Enviar ${faltas} Avisos de Inasistencia`;
-btn.style.background = "var(--red)";
-}
+btn.innerText = faltas === 0 ? "Confirmar Asistencia Perfecta" : `Enviar ${faltas} Avisos de Inasistencia`;
+btn.style.background = faltas === 0 ? "var(--navy)" : "var(--red)";
 }
 
-async function enviar() {
-const alumnos = ALL_STUDENTS.filter(s => s.curso === currentCourse && s.preceptor === currentPreceptor && s.turno?.toLowerCase() === currentTurno.toLowerCase());
-const esC = currentTurno.toLowerCase() === 'contraturno';
+function enviar() {
+const faltas = document.querySelectorAll('input:checked').length;
+if(!confirm(`¿Confirmar envío de reporte con ${faltas} inasistencias?`)) return;
+
+document.getElementById('sendBtn').disabled = true;
+document.getElementById('sendBtn').innerText = "Procesando...";
+
+const alumnosCurso = ALL_STUDENTS.filter(s => s.curso === currentCourse && s.preceptor === currentPreceptor && s.turno?.toLowerCase() === currentTurno.toLowerCase());
 const queue = [];
 
-alumnos.forEach(s => {
-let f = false, esp = "";
-if(esC) {
-const cbs = document.querySelectorAll(`#ctrl_${s.id} input:checked`);
-if(cbs.length > 0) { f = true; esp = Array.from(cbs).map(b => b.value).join(", "); }
-} else {
-f = document.getElementById(`ctrl_${s.id}`).checked;
-if(f) esp = "Turno " + currentTurno;
-}
-
-if(f) {
-const t = configs[esC ? 'contraturno' : 'turno'];
+alumnosCurso.forEach(s => {
+const isAbsent = document.getElementById(`ctrl_${s.id}`).checked;
+if(isAbsent) {
+const t = configs.turno;
 const nom = s.apellido + ", " + s.nombre;
 queue.push({
-to: s.email, subject: t.subject.replace(/{{alumno}}/g, nom).replace(/{{espacio}}/g, esp),
-body: t.body.replace(/{{alumno}}/g, nom).replace(/{{curso}}/g, s.curso).replace(/{{espacio}}/g, esp).replace(/{{fecha}}/g, new Date().toLocaleDateString('es-AR')).replace(/{{preceptor}}/g, currentPreceptor),
-datosRegistro: { alumno: nom, curso: s.curso, espacio: esp, preceptor: currentPreceptor }
+to: s.email,
+subject: t.subject.replace(/{{alumno}}/g, nom),
+body: t.body.replace(/{{alumno}}/g, nom).replace(/{{curso}}/g, s.curso).replace(/{{fecha}}/g, new Date().toLocaleDateString())
 });
 }
 });
 
-let mensaje = queue.length === 0 ? "¿Confirmar asistencia PERFECTA (nadie faltó) y enviar reporte a Jefatura?" : `¿Enviar ${queue.length} avisos a familias y reporte a Jefatura?`;
-if(!confirm(mensaje)) return;
+const payload = {
+queue,
+resumen: { curso: currentCourse, turno: currentTurno, ausentes: queue.length, total: alumnosCurso.length }
+};
 
-const b = document.getElementById('sendBtn');
-b.disabled = true;
-b.innerText = "Procesando...";
-b.style.background = "var(--navy-light)";
-
-const resumen = { turno: currentTurno, curso: currentCourse, total: alumnos.length, ausentes: queue.length, presentes: alumnos.length - queue.length };
-
-try {
-await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ queue, resumen }) });
-
-// Si sale todo bien, guardamos la marca para evitar doble envío hoy
-const fechaHoy = new Date().toLocaleDateString('es-AR');
-localStorage.setItem(`enviado_${currentTurno}_${currentCourse}_${fechaHoy}`, 'true');
-
-alert("¡Reporte enviado exitosamente!");
-cargarCurso(currentCourse); // Se vuelve a cargar para mostrar el cartel verde
-} catch (e) { alert("Error de conexión al enviar."); }
-finally { b.disabled = false; }
+google.script.run.withSuccessHandler(() => {
+localStorage.setItem(`envio_${currentCourse}_${new Date().toLocaleDateString()}`, 'true');
+alert("¡Reporte enviado con éxito!");
+location.reload();
+}).procesarEnvio(payload);
 }
 </script>
 </body>
