@@ -8,62 +8,50 @@
 --navy: #2B326B; --navy-light: #3D468F; --gold: #C2A251; --red: #D82226;
 --red-soft: #FEE2E2; --bg: #F8FAFC; --text: #1E293B; --muted: #64748B;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-/* Pantallas de Bloqueo */
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--navy); color: white; text-align: center; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--navy); color: white; text-align: center; padding: 20px;}
 .hidden { display: none !important; }
-
-/* Layout */
-header { background: var(--navy); color: white; padding: 12px 5%; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15); position: sticky; top: 0; }
+header { background: var(--navy); color: white; padding: 12px 5%; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100;}
 .header-brand { display: flex; align-items: center; gap: 15px; }
 .header-logo { width: 45px; height: auto; }
 .layout { display: flex; max-width: 1400px; margin: 0 auto; }
-
-.sidebar { width: 300px; background: white; border-right: 1px solid #E2E8F0; padding: 25px 20px; min-height: calc(100vh - 70px); }
+.sidebar { width: 300px; background: white; border-right: 1px solid #E2E8F0; padding: 25px 20px; min-height: 100vh; }
 .main { flex: 1; padding: 30px 5%; }
-
-/* Componentes */
 .m-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
 .m-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-size: 0.9rem; margin-bottom: 20px; outline: none; }
-
 .ditem { padding: 12px 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; font-weight: 500; margin-bottom: 5px; }
-.ditem:hover { background: #F1F5F9; color: var(--navy); }
 .ditem.active { background: var(--navy); color: white; box-shadow: 0 4px 12px rgba(43,50,107,0.2); }
-
-.tcard { background: white; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-.theader { display: grid; grid-template-columns: 1fr auto; padding: 15px 25px; background: #F1F5F9; border-bottom: 1px solid #CBD5E1; color: var(--muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+.tcard { background: white; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; }
 .trow { display: grid; grid-template-columns: 1fr auto; padding: 15px 25px; align-items: center; border-bottom: 1px solid #F1F5F9; }
 .absent-row { background-color: var(--red-soft) !important; color: var(--red); font-weight: 700; }
 
-/* Botones */
+/* Controles de Asistencia */
 .cwrap input { display: none; }
 .clbl { padding: 8px 20px; border-radius: 6px; border: 1.5px solid #CBD5E1; cursor: pointer; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; min-width: 100px; text-align: center; display: inline-block; background: white; }
 .clbl::before { content: 'Presente'; }
 input:checked + .clbl { background: var(--red); border-color: var(--red); color: white; }
 input:checked + .clbl::before { content: 'Ausente'; }
 
-.btn-send { width: 100%; padding: 18px; border-radius: 10px; border: none; background: var(--navy); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 30px; box-shadow: 0 10px 15px rgba(43,50,107,0.2); }
+/* Contraturno Pills */
+.ct-opts { display: flex; gap: 8px; }
+.ct-opts input { display: none; }
+.ct-opts span { padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; font-size: 0.75rem; font-weight: 700; background: #fff; cursor: pointer; color: var(--muted); }
+.ct-opts input:checked + span { background: var(--red); color: white; border-color: var(--red); }
 
+.btn-send { width: 100%; padding: 18px; border-radius: 10px; border: none; background: var(--navy); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 30px; }
 .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
-
-@media (max-width: 768px) { .layout { flex-direction: column; } .sidebar { width: 100%; min-height: auto; } }
 </style>
 </head>
 <body>
 
-<div id="loader" class="overlay">
-<div class="spinner"></div>
-<p style="margin-top:20px;">Verificando acceso institucional...</p>
-</div>
+<div id="loader" class="overlay"><div class="spinner"></div><p style="margin-top:20px;">Verificando acceso institucional...</p></div>
 
 <div id="denied" class="overlay hidden">
-<h1 style="color: var(--gold);">Acceso Denegado</h1>
+<h1 style="color: var(--gold);">Acceso Restringido</h1>
 <p id="userMail" style="margin: 15px 0; opacity: 0.8;"></p>
-<p>Tu cuenta no está en la lista de preceptores autorizados.<br>Si crees que es un error, contacta a Jefatura.</p>
+<p>Esta cuenta no está autorizada para pasar asistencia.</p>
 </div>
 
 <div id="app" class="hidden">
@@ -87,19 +75,15 @@ input:checked + .clbl::before { content: 'Ausente'; }
 <option value="Tarde">Tarde</option>
 <option value="Contraturno">Contraturno</option>
 </select>
-
 <div id="secPreceptor" style="display:none;">
 <label class="m-label">Preceptor</label>
 <select id="selPreceptor" onchange="cambiarPreceptor(this.value)" class="m-select"></select>
 </div>
-
 <div id="linksCursos"></div>
 </aside>
-
 <main class="main" id="mainArea" style="display:none;">
 <h2 id="courseTitle" style="margin-bottom:20px; color:var(--navy);"></h2>
 <div class="tcard">
-<div class="theader"><span>Estudiante</span><span>Asistencia</span></div>
 <div id="studentList"></div>
 </div>
 <button class="btn-send" id="sendBtn" onclick="enviar()">Confirmar Asistencia</button>
@@ -108,15 +92,10 @@ input:checked + .clbl::before { content: 'Ausente'; }
 </div>
 
 <script>
-let ALL_STUDENTS = [];
-let configs = null;
-let currentTurno = "";
-let currentPreceptor = "";
-let currentCourse = "";
+let ALL_STUDENTS = []; let configs = null;
+let currentTurno = ""; let currentPreceptor = ""; let currentCourse = "";
 
-window.onload = () => {
-google.script.run.withSuccessHandler(validarAcceso).verificarAcceso();
-};
+window.onload = () => { google.script.run.withSuccessHandler(validarAcceso).verificarAcceso(); };
 
 function validarAcceso(res) {
 if (res.autorizado) {
@@ -139,88 +118,83 @@ google.script.run.withSuccessHandler(c => { configs = c; }).getConfig();
 }
 
 function cambiarTurno(t) {
-currentTurno = t;
-document.getElementById('secPreceptor').style.display = t ? 'block' : 'none';
+currentTurno = t; document.getElementById('secPreceptor').style.display = t ? 'block' : 'none';
 document.getElementById('mainArea').style.display = 'none';
 const lista = [...new Set(ALL_STUDENTS.filter(s => s.turno?.toLowerCase() === t.toLowerCase()).map(s => s.preceptor))].sort();
 document.getElementById('selPreceptor').innerHTML = '<option value="">Seleccione...</option>' + lista.map(p => `<option value="${p}">${p}</option>`).join('');
 }
 
 function cambiarPreceptor(p) {
-currentPreceptor = p;
-document.getElementById('mainArea').style.display = 'none';
+currentPreceptor = p; document.getElementById('mainArea').style.display = 'none';
 const cursos = [...new Set(ALL_STUDENTS.filter(s => s.preceptor === p && s.turno?.toLowerCase() === currentTurno.toLowerCase()).map(s => s.curso))].sort();
 document.getElementById('linksCursos').innerHTML = cursos.map(c => `<div class="ditem" onclick="cargarCurso('${c}')">${c}</div>`).join('');
 }
 
 function cargarCurso(c) {
-currentCourse = c;
-document.getElementById('mainArea').style.display = 'block';
+currentCourse = c; document.getElementById('mainArea').style.display = 'block';
 document.getElementById('courseTitle').innerText = c;
 document.querySelectorAll('.ditem').forEach(el => el.classList.toggle('active', el.innerText === c));
 
-// Verificación de Anti-Doble Envío Local
-const hoy = new Date().toLocaleDateString();
-if(localStorage.getItem(`envio_${c}_${hoy}`)) {
-document.getElementById('studentList').innerHTML = '<div style="padding:40px; text-align:center;">✅ Asistencia ya enviada hoy.</div>';
-document.getElementById('sendBtn').style.display = 'none';
-return;
-}
-
-document.getElementById('sendBtn').style.display = 'block';
 const alumnos = ALL_STUDENTS.filter(s => s.curso === c && s.preceptor === currentPreceptor && s.turno?.toLowerCase() === currentTurno.toLowerCase());
+const esC = currentTurno.toLowerCase() === 'contraturno';
 
 document.getElementById('studentList').innerHTML = alumnos.map(s => `
 <div class="trow">
-<span class="student-name">${s.apellido}, ${s.nombre}</span>
-<label class="cwrap">
-<input type="checkbox" id="ctrl_${s.id}" onchange="this.closest('.trow').classList.toggle('absent-row', this.checked); actualizarContador();">
-<div class="clbl"></div>
-</label>
+<span style="font-weight:500;">${s.apellido}, ${s.nombre}</span>
+<div>${esC ?
+`<div class="ct-opts" id="ctrl_${s.id}">
+<label><input type="checkbox" value="EF" onchange="actualizarContador()"><span>EF</span></label>
+<label><input type="checkbox" value="FR" onchange="actualizarContador()"><span>FR</span></label>
+<label><input type="checkbox" value="INF" onchange="actualizarContador()"><span>INF</span></label>
+</div>` :
+`<label class="cwrap"><input type="checkbox" id="ctrl_${s.id}" onchange="this.closest('.trow').classList.toggle('absent-row', this.checked); actualizarContador();"><div class="clbl"></div></label>`
+}</div>
 </div>`).join('');
 actualizarContador();
 }
 
 function actualizarContador() {
-const faltas = document.querySelectorAll('input:checked').length;
+let faltas = 0;
+const esC = currentTurno.toLowerCase() === 'contraturno';
+ALL_STUDENTS.filter(s => s.curso === currentCourse && s.turno?.toLowerCase() === currentTurno.toLowerCase()).forEach(s => {
+const el = document.getElementById(`ctrl_${s.id}`);
+if(esC) { if(el && el.querySelectorAll('input:checked').length > 0) faltas++; }
+else { if(el && el.checked) faltas++; }
+});
 const btn = document.getElementById('sendBtn');
 btn.innerText = faltas === 0 ? "Confirmar Asistencia Perfecta" : `Enviar ${faltas} Avisos de Inasistencia`;
 btn.style.background = faltas === 0 ? "var(--navy)" : "var(--red)";
 }
 
 function enviar() {
-const faltas = document.querySelectorAll('input:checked').length;
-if(!confirm(`¿Confirmar envío de reporte con ${faltas} inasistencias?`)) return;
-
-document.getElementById('sendBtn').disabled = true;
-document.getElementById('sendBtn').innerText = "Procesando...";
-
-const alumnosCurso = ALL_STUDENTS.filter(s => s.curso === currentCourse && s.preceptor === currentPreceptor && s.turno?.toLowerCase() === currentTurno.toLowerCase());
+const alumnos = ALL_STUDENTS.filter(s => s.curso === currentCourse && s.preceptor === currentPreceptor && s.turno?.toLowerCase() === currentTurno.toLowerCase());
+const esC = currentTurno.toLowerCase() === 'contraturno';
 const queue = [];
 
-alumnosCurso.forEach(s => {
-const isAbsent = document.getElementById(`ctrl_${s.id}`).checked;
-if(isAbsent) {
-const t = configs.turno;
+alumnos.forEach(s => {
+let ausente = false, espacio = "";
+if(esC) {
+const checks = document.querySelectorAll(`#ctrl_${s.id} input:checked`);
+if(checks.length > 0) { ausente = true; espacio = Array.from(checks).map(b => b.value).join(", "); }
+} else {
+ausente = document.getElementById(`ctrl_${s.id}`).checked;
+espacio = "Turno " + currentTurno;
+}
+
+if(ausente) {
+const t = configs[esC ? 'contraturno' : 'turno'];
 const nom = s.apellido + ", " + s.nombre;
 queue.push({
 to: s.email,
-subject: t.subject.replace(/{{alumno}}/g, nom),
-body: t.body.replace(/{{alumno}}/g, nom).replace(/{{curso}}/g, s.curso).replace(/{{fecha}}/g, new Date().toLocaleDateString())
+subject: t.subject.replace(/{{alumno}}/g, nom).replace(/{{espacio}}/g, espacio),
+body: t.body.replace(/{{alumno}}/g, nom).replace(/{{curso}}/g, s.curso).replace(/{{espacio}}/g, espacio).replace(/{{fecha}}/g, new Date().toLocaleDateString()).replace(/{{preceptor}}/g, currentPreceptor)
 });
 }
 });
 
-const payload = {
-queue,
-resumen: { curso: currentCourse, turno: currentTurno, ausentes: queue.length, total: alumnosCurso.length }
-};
-
-google.script.run.withSuccessHandler(() => {
-localStorage.setItem(`envio_${currentCourse}_${new Date().toLocaleDateString()}`, 'true');
-alert("¡Reporte enviado con éxito!");
-location.reload();
-}).procesarEnvio(payload);
+if(!confirm(`¿Confirmar envío de ${queue.length} avisos?`)) return;
+document.getElementById('sendBtn').disabled = true;
+google.script.run.withSuccessHandler(() => { alert("¡Enviado!"); location.reload(); }).procesarEnvio({ queue, resumen: { curso: currentCourse, turno: currentTurno, ausentes: queue.length, total: alumnos.length } });
 }
 </script>
 </body>
