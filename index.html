@@ -33,12 +33,20 @@
     .student-card { background: white; padding: 16px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0; transition: all 0.2s; }
     .student-card.is-absent { border-left: 6px solid var(--red); background: #FFF1F2; }
 
+    /* Normal Switch */
     .absent-toggle { position: relative; display: inline-block; width: 100px; height: 36px; }
     .absent-toggle input { display: none; }
     .slider { position: absolute; cursor: pointer; inset: 0; background-color: #E2E8F0; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #64748B; transition: 0.3s; }
     .slider:before { content: 'PRESENTE'; }
     input:checked + .slider { background-color: var(--red); color: white; }
     input:checked + .slider:before { content: 'AUSENTE'; }
+
+    /* Contraturno Options */
+    .ct-opts { display: flex; gap: 8px; }
+    .ct-opts label { cursor: pointer; display: block; margin: 0; }
+    .ct-opts input[type="checkbox"] { display: none; }
+    .ct-opts span { padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; font-size: 11px; font-weight: 700; background: white; color: #64748B; transition: 0.2s; display: inline-block; }
+    .ct-opts input:checked + span { background: var(--red); color: white; border-color: var(--red); }
 
     .footer-actions { position: fixed; bottom: 0; right: 0; left: 0; padding: 20px; background: white; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; }
     @media (min-width: 769px) { .footer-actions { left: 320px; } }
@@ -201,55 +209,99 @@
       document.getElementById('footer').classList.remove('hidden');
 
       const alumnos = DATA.students.filter(s => s.turno == state.turno && s.curso == curso);
+      
       document.getElementById('studentList').innerHTML = alumnos.map(s => `
         <div class="student-card" id="card_${s.id}">
           <div style="font-weight:600">${s.apellido}, ${s.nombre}</div>
-          <label class="absent-toggle">
-            <input type="checkbox" class="check-absent" data-email="${s.email_responsable}" data-name="${s.apellido} ${s.nombre}" onchange="document.getElementById('card_${s.id}').classList.toggle('is-absent', this.checked)">
-            <div class="slider"></div>
-          </label>
+          <div id="ctrl_${s.id}">
+            ${state.turno === 'Contraturno' ? `
+              <div class="ct-opts">
+                <label><input type="checkbox" value="Educación Física" class="ct-check" onchange="toggleContraturno(${s.id})"><span>EF</span></label>
+                <label><input type="checkbox" value="Formación Religiosa" class="ct-check" onchange="toggleContraturno(${s.id})"><span>FR</span></label>
+                <label><input type="checkbox" value="Informática" class="ct-check" onchange="toggleContraturno(${s.id})"><span>INF</span></label>
+              </div>
+            ` : `
+              <label class="absent-toggle">
+                <input type="checkbox" class="check-absent" onchange="document.getElementById('card_${s.id}').classList.toggle('is-absent', this.checked)">
+                <div class="slider"></div>
+              </label>
+            `}
+          </div>
         </div>
       `).join('');
     }
 
+    // Función auxiliar para pintar de rojo la fila si tocan alguna materia de Contraturno
+    function toggleContraturno(id) {
+      const card = document.getElementById('card_' + id);
+      const checks = card.querySelectorAll('.ct-check:checked');
+      card.classList.toggle('is-absent', checks.length > 0);
+    }
+
     async function confirmarEnvio() {
-      const ausentes = document.querySelectorAll('.check-absent:checked');
-      if (!confirm(`¿Confirmar asistencia? Se enviarán ${ausentes.length} avisos.`)) return;
-
+      const isContraturno = state.turno === 'Contraturno';
       const queue = [];
-      const config = state.turno === 'Contraturno' ? DATA.config.contraturno : DATA.config.turno;
+      const config = isContraturno ? DATA.config.contraturno : DATA.config.turno;
       const fechaHoy = new Date().toLocaleDateString();
+      let totalAusentes = 0;
 
-      ausentes.forEach(a => {
-        let txtEspacio = state.turno === 'Contraturno' ? 'Contraturno' : state.turno;
+      // Obtenemos los alumnos del curso actual listados en pantalla
+      const alumnosRenderizados = DATA.students.filter(s => s.turno == state.turno && s.curso == state.curso);
 
-        let asuntoPersonalizado = config.subject
-            .replace(/\{\{alumno\}\}/gi, a.dataset.name)
+      alumnosRenderizados.forEach(s => {
+        let esAusente = false;
+        let txtEspacio = state.turno; // Texto por defecto
+        
+        // Verificamos quién está marcado según el modo de turno
+        if (isContraturno) {
+          const checks = Array.from(document.querySelectorAll(`#ctrl_${s.id} .ct-check:checked`));
+          if (checks.length > 0) {
+            esAusente = true;
+            // Une las materias marcadas: "Educación Física y Formación Religiosa"
+            txtEspacio = checks.map(c => c.value).join(" y "); 
+          }
+        } else {
+          const check = document.querySelector(`#ctrl_${s.id} .check-absent`);
+          if (check && check.checked) {
+            esAusente = true;
+          }
+        }
+
+        // Si faltó, armamos el correo
+        if (esAusente) {
+          totalAusentes++;
+          const nombreCompleto = s.apellido + " " + s.nombre;
+          
+          let asunto = config.subject
+            .replace(/\{\{alumno\}\}/gi, nombreCompleto)
             .replace(/\{\{curso\}\}/gi, state.curso)
             .replace(/\{\{preceptor\}\}/gi, state.preceptor)
             .replace(/\{\{espacio\}\}/gi, txtEspacio)
             .replace(/\{\{fecha\}\}/gi, fechaHoy);
 
-        let cuerpoPersonalizado = config.body
-            .replace(/\{\{alumno\}\}/gi, a.dataset.name)
+          let cuerpo = config.body
+            .replace(/\{\{alumno\}\}/gi, nombreCompleto)
             .replace(/\{\{curso\}\}/gi, state.curso)
             .replace(/\{\{preceptor\}\}/gi, state.preceptor)
             .replace(/\{\{espacio\}\}/gi, txtEspacio)
             .replace(/\{\{fecha\}\}/gi, fechaHoy);
 
-        queue.push({
-          to: a.dataset.email,
-          subject: asuntoPersonalizado,
-          body: cuerpoPersonalizado
-        });
+          queue.push({
+            to: s.email_responsable,
+            subject: asunto,
+            body: cuerpo
+          });
+        }
       });
+
+      if (!confirm(`¿Confirmar asistencia? Se enviarán ${totalAusentes} avisos.`)) return;
 
       const btn = document.getElementById('sendBtn');
       btn.disabled = true;
       btn.innerText = "Procesando...";
 
       try {
-        const payload = { queue: queue, resumen: { curso: state.curso, turno: state.turno, total: document.querySelectorAll('.check-absent').length } };
+        const payload = { queue: queue, resumen: { curso: state.curso, turno: state.turno, total: alumnosRenderizados.length } };
         
         const response = await fetch(API_URL, {
           method: 'POST',
@@ -262,19 +314,15 @@
         
         if(res.success) {
             alert("Asistencia registrada con éxito.");
-            
             const botonActivo = document.querySelector('.course-btn.active');
             cargarCurso(state.curso, botonActivo);
-            btn.disabled = false;
-            btn.innerText = "Confirmar Asistencia";
         } else {
             alert("Error al guardar: " + res.error);
-            btn.disabled = false;
-            btn.innerText = "Confirmar Asistencia";
         }
       } catch (error) {
         console.error(error);
         alert("Error de conexión al enviar.");
+      } finally {
         btn.disabled = false;
         btn.innerText = "Confirmar Asistencia";
       }
