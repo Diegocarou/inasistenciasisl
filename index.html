@@ -220,13 +220,66 @@
 
       const queue = [];
       const config = state.turno === 'Contraturno' ? DATA.config.contraturno : DATA.config.turno;
+      const fechaHoy = new Date().toLocaleDateString();
+
       ausentes.forEach(a => {
+        // Usamos Regex (/gi) para reemplazar todas las coincidencias sin importar mayúsculas/minúsculas
+        let asuntoPersonalizado = config.subject
+            .replace(/{{alumno}}/gi, a.dataset.name)
+            .replace(/{{curso}}/gi, state.curso)
+            .replace(/{{preceptor}}/gi, state.preceptor)
+            .replace(/{{fecha}}/gi, fechaHoy);
+
+        let cuerpoPersonalizado = config.body
+            .replace(/{{alumno}}/gi, a.dataset.name)
+            .replace(/{{curso}}/gi, state.curso)
+            .replace(/{{preceptor}}/gi, state.preceptor)
+            .replace(/{{fecha}}/gi, fechaHoy);
+
         queue.push({
           to: a.dataset.email,
-          subject: config.subject.replace('{{alumno}}', a.dataset.name),
-          body: config.body.replace('{{alumno}}', a.dataset.name).replace('{{fecha}}', new Date().toLocaleDateString())
+          subject: asuntoPersonalizado,
+          body: cuerpoPersonalizado
         });
       });
+
+      const btn = document.getElementById('sendBtn');
+      btn.disabled = true;
+      btn.innerText = "Procesando...";
+
+      try {
+        const payload = { queue: queue, resumen: { curso: state.curso, turno: state.turno, total: document.querySelectorAll('.check-absent').length } };
+        
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          redirect: 'follow',
+          body: JSON.stringify({ action: 'enviar', email: state.email, payload: payload })
+        });
+        
+        const res = await response.json();
+        
+        if(res.success) {
+            alert("Asistencia registrada con éxito.");
+            
+            // Recargamos el curso actual manteniendo la sesión
+            const botonActivo = document.querySelector('.course-btn.active');
+            cargarCurso(state.curso, botonActivo);
+            btn.disabled = false;
+            btn.innerText = "Confirmar Asistencia";
+
+        } else {
+            alert("Error al guardar: " + res.error);
+            btn.disabled = false;
+            btn.innerText = "Confirmar Asistencia";
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error de conexión al enviar.");
+        btn.disabled = false;
+        btn.innerText = "Confirmar Asistencia";
+      }
+    }
 
       const btn = document.getElementById('sendBtn');
       btn.disabled = true;
