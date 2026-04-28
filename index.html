@@ -6,77 +6,21 @@
   <title>ISL - Sistema de Asistencia</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { 
-      --navy: #2B326B; 
-      --gold: #C2A251; 
-      --red: #D82226; 
-      --bg: #F8FAFC; 
-    }
-    
+    :root { --navy: #2B326B; --gold: #C2A251; --red: #D82226; --bg: #F8FAFC; }
     * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #1E293B; }
     
-    body { 
-      font-family: 'Inter', sans-serif; 
-      background: var(--bg); 
-      margin: 0; 
-      padding: 0; 
-      color: #1E293B; 
-    }
-    
-    /* --------------------------------------
-       ESTILOS DE LOGIN Y HEADER
-       -------------------------------------- */
-    #loginScreen { 
-      position: fixed; inset: 0; 
-      background: var(--navy); 
-      display: flex; align-items: center; justify-content: center; 
-      z-index: 200; 
-    }
-    
-    .login-box { 
-      background: white; padding: 40px; 
-      border-radius: 12px; width: 90%; max-width: 400px; 
-      text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-    }
-    
-    .login-input { 
-      width: 100%; padding: 15px; margin-top: 15px; 
-      border: 1px solid #CBD5E1; border-radius: 8px; 
-      font-size: 16px; background: #F8FAFC; 
-    }
-    
-    .btn-login { 
-      width: 100%; padding: 15px; margin-top: 20px;
-      background: var(--gold); color: white; border: none; 
-      border-radius: 8px; font-weight: 700; cursor: pointer; 
-      font-size: 16px; transition: 0.3s; 
-    }
+    #loginScreen { position: fixed; inset: 0; background: var(--navy); display: flex; align-items: center; justify-content: center; z-index: 200; }
+    .login-box { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .login-input { width: 100%; padding: 15px; margin-top: 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 16px; background: #F8FAFC; }
+    .btn-login { width: 100%; padding: 15px; margin-top: 20px; background: var(--gold); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; transition: 0.3s; }
     .btn-login:disabled { background: #CBD5E1; cursor: not-allowed; }
     
-    header { 
-      background: var(--navy); color: white; 
-      padding: 15px 5%; display: flex; 
-      justify-content: space-between; align-items: center; 
-      position: sticky; top: 0; z-index: 10; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
+    header { background: var(--navy); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
     .header-user { display: flex; align-items: center; gap: 15px; }
+    .btn-logout { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 700; }
     
-    .btn-logout { 
-      background: transparent; border: 1px solid var(--gold); 
-      color: var(--gold); padding: 5px 10px; border-radius: 4px; 
-      cursor: pointer; font-size: 11px; font-weight: 700; 
-    }
-    
-    /* --------------------------------------
-       LAYOUT Y COMPONENTES
-       -------------------------------------- */
-    .layout { 
-      display: grid; grid-template-columns: 320px 1fr; 
-      min-height: calc(100vh - 60px); 
-    }
-    
+    .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 60px); }
     @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
     
     .sidebar { background: white; padding: 25px; border-right: 1px solid #E2E8F0; }
@@ -85,67 +29,31 @@
     .m-label { font-size: 11px; font-weight: 700; color: #64748B; margin-bottom: 5px; display: block;}
     .m-select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-size: 14px; }
     
-    .course-btn { 
-      padding: 12px 15px; background: #F8FAFC; 
-      border: 1px solid #E2E8F0; border-radius: 8px; 
-      margin-bottom: 8px; cursor: pointer; font-weight: 600; 
-      transition: all 0.2s; 
-    }
+    .course-btn { padding: 12px 15px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
     .course-btn.active { background: var(--gold); color: white; border-color: var(--gold); }
 
-    /* --------------------------------------
-       TARJETAS DE ALUMNOS Y SWITCHES
-       -------------------------------------- */
-    .student-card { 
-      background: white; padding: 16px 20px; border-radius: 10px; 
-      margin-bottom: 10px; display: flex; justify-content: space-between; 
-      align-items: center; border: 1px solid #E2E8F0; transition: all 0.2s; 
-    }
+    .student-card { background: white; padding: 16px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0; transition: all 0.2s; }
     .student-card.is-absent { border-left: 6px solid var(--red); background: #FFF1F2; }
     
-    .badge-faltas { 
-      background: #F1F5F9; color: #64748B; font-size: 11px; 
-      font-weight: 800; padding: 3px 8px; border-radius: 4px; 
-      margin-left: 10px; border: 1px solid #E2E8F0;
-    }
+    .badge-faltas { background: #F1F5F9; color: #64748B; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; margin-left: 10px; border: 1px solid #E2E8F0;}
 
-    /* Switch Turno Normal */
     .absent-toggle { position: relative; display: inline-block; width: 100px; height: 36px; }
     .absent-toggle input { display: none; }
-    .slider { 
-      position: absolute; cursor: pointer; inset: 0; 
-      background-color: #E2E8F0; border-radius: 20px; 
-      display: flex; align-items: center; justify-content: center; 
-      font-size: 11px; font-weight: 800; color: #64748B; transition: 0.3s; 
-    }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: #E2E8F0; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #64748B; transition: 0.3s; }
     .slider:before { content: 'PRESENTE'; }
     input:checked + .slider { background-color: var(--red); color: white; }
     input:checked + .slider:before { content: 'AUSENTE'; }
 
-    /* Controles Contraturno */
     .ct-opts { display: flex; gap: 8px; }
     .ct-opts label { cursor: pointer; display: block; margin: 0; }
     .ct-opts input { display: none; }
-    .ct-opts span { 
-      padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; 
-      font-size: 11px; font-weight: 700; background: white; 
-      color: #64748B; transition: 0.2s; display: inline-block; 
-    }
+    .ct-opts span { padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; font-size: 11px; font-weight: 700; background: white; color: #64748B; transition: 0.2s; display: inline-block; }
     .ct-opts input:checked + span { background: var(--red); color: white; border-color: var(--red); }
 
-    /* Footer y Acciones */
-    .footer-actions { 
-      position: fixed; bottom: 0; right: 0; left: 0; 
-      padding: 20px; background: white; border-top: 1px solid #E2E8F0; 
-      display: flex; justify-content: flex-end; 
-    }
+    .footer-actions { position: fixed; bottom: 0; right: 0; left: 0; padding: 20px; background: white; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; }
     @media (min-width: 769px) { .footer-actions { left: 320px; } }
     
-    .btn-send { 
-      background: var(--navy); color: white; padding: 15px 40px; 
-      border: none; border-radius: 8px; font-weight: 700; 
-      cursor: pointer; transition: background 0.3s; 
-    }
+    .btn-send { background: var(--navy); color: white; padding: 15px 40px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.3s; }
     .btn-send:disabled { background: #CBD5E1; cursor: not-allowed; }
     .hidden { display: none !important; }
   </style>
@@ -156,10 +64,8 @@
     <div class="login-box">
       <h2 style="color:var(--navy); margin-top:0;">Instituto Santa Lucía</h2>
       <p style="color:#64748B; font-size:14px;">Ingrese sus credenciales de acceso</p>
-      
       <input type="email" id="emailInput" class="login-input" placeholder="usuario@isantalucia.edu.ar">
       <input type="password" id="passInput" class="login-input" placeholder="Contraseña">
-      
       <button class="btn-login" onclick="iniciarSesion()" id="loginBtn">Ingresar al Sistema</button>
       <p id="loginError" style="color:var(--red); font-size:13px; margin-top:10px;" class="hidden"></p>
     </div>
@@ -194,7 +100,8 @@
       <main class="main">
         <h2 id="viewTitle" style="color: var(--navy); margin-top: 0;">Bienvenido</h2>
         <div id="studentList"></div>
-        <div style="height: 100px;"></div> </main>
+        <div style="height: 100px;"></div>
+      </main>
     </div>
 
     <div id="footer" class="footer-actions hidden">
@@ -206,12 +113,11 @@
     // =========================================================
     // ⚠️ REEMPLAZA AQUÍ LA URL DE TU API DE APPS SCRIPT
     // =========================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwtRfCz4jhysvN8QOZgQ2TCQVyY9R7Ww87arMIJ8Ntvyena9_sU4OSisTQuC5hGd3_IdA/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbxm3oByh3paLVYY8IF9sNpAMoKdQ7-ghlb5ileYjKa08bnCYATLYAAuGnbiEBfluyjJEA/exec"; 
     
     let DATA = {}; 
     let state = { email: '', turno: '', preceptor: '', curso: '' };
 
-    // Auto-Login: Verifica sesión al cargar la página
     window.onload = () => { 
       const e = localStorage.getItem('isl_email');
       const p = localStorage.getItem('isl_pass'); 
@@ -222,22 +128,15 @@
       } 
     };
 
-    // FUNCIÓN: INICIAR SESIÓN
     async function iniciarSesion() {
       const email = document.getElementById('emailInput').value;
       const pass = document.getElementById('passInput').value;
       const btn = document.getElementById('loginBtn');
       const err = document.getElementById('loginError');
 
-      if (!email || !pass) {
-        err.innerText = "Complete ambos campos.";
-        err.classList.remove('hidden');
-        return;
-      }
+      if (!email || !pass) { err.innerText = "Complete ambos campos."; err.classList.remove('hidden'); return; }
 
-      btn.innerText = "Verificando...";
-      btn.disabled = true;
-      err.classList.add('hidden');
+      btn.innerText = "Verificando..."; btn.disabled = true; err.classList.add('hidden');
 
       try {
         const response = await fetch(API_URL, { 
@@ -246,63 +145,44 @@
           redirect: 'follow',
           body: JSON.stringify({ action: 'login', email: email, password: pass }) 
         });
-        
         const res = await response.json();
         
         if (res.autorizado) { 
-          DATA = res; 
-          state.email = email; 
-          localStorage.setItem('isl_email', email); 
-          localStorage.setItem('isl_pass', pass); 
-          
+          DATA = res; state.email = email; 
+          localStorage.setItem('isl_email', email); localStorage.setItem('isl_pass', pass); 
           document.getElementById('userLabel').innerText = email; 
           document.getElementById('loginScreen').classList.add('hidden'); 
           document.getElementById('app').classList.remove('hidden'); 
         } else { 
-          err.innerText = res.error;
-          err.classList.remove('hidden');
-          localStorage.removeItem('isl_email');
-          localStorage.removeItem('isl_pass');
+          err.innerText = res.error; err.classList.remove('hidden');
+          localStorage.removeItem('isl_email'); localStorage.removeItem('isl_pass');
         }
       } catch (e) { 
-        err.innerText = "Error de conexión. Verifica la API_URL.";
-        err.classList.remove('hidden');
+        err.innerText = "Error de conexión. Verifica la API_URL."; err.classList.remove('hidden');
       } finally {
-        btn.innerText = "Ingresar al Sistema";
-        btn.disabled = false;
+        btn.innerText = "Ingresar al Sistema"; btn.disabled = false;
       }
     }
 
-    // FUNCIÓN: CERRAR SESIÓN
-    function cerrarSesion() { 
-      localStorage.clear(); 
-      location.reload(); 
-    }
+    function cerrarSesion() { localStorage.clear(); location.reload(); }
 
-    // FUNCIÓN: CAMBIAR TURNO
     function cambiarTurno() { 
       state.turno = document.getElementById('selTurno').value; 
       const preceptores = [...new Set(DATA.students.filter(s => s.turno == state.turno).map(s => s.preceptor))].sort(); 
-      
       document.getElementById('selPreceptor').innerHTML = '<option value="">Seleccione...</option>' + preceptores.map(x => `<option value="${x}">${x}</option>`).join(''); 
       document.getElementById('listaCursos').innerHTML = ''; 
       resetMain();
     }
 
-    // FUNCIÓN: CAMBIAR PRECEPTOR
     function cambiarPreceptor() { 
       state.preceptor = document.getElementById('selPreceptor').value; 
       const cursos = [...new Set(DATA.students.filter(s => s.turno == state.turno && s.preceptor == state.preceptor).map(s => s.curso))].sort(); 
-      
       document.getElementById('listaCursos').innerHTML = cursos.map(x => `<div class="course-btn" onclick="cargarCurso('${x}', this)">${x}</div>`).join(''); 
       resetMain();
     }
 
-    // FUNCIÓN: CARGAR ALUMNOS DEL CURSO
     function cargarCurso(curso, el) { 
       state.curso = curso; 
-      
-      // Control visual del botón activo
       if (el) {
         document.querySelectorAll('.course-btn').forEach(b => b.classList.remove('active')); 
         el.classList.add('active'); 
@@ -315,27 +195,16 @@
       
       document.getElementById('studentList').innerHTML = alumnos.map(s => `
         <div class="student-card" id="card_${s.id}">
-          
           <div style="flex: 1;">
             <span style="font-weight:600; display:block; margin-bottom: 4px;">${s.apellido}, ${s.nombre}</span>
             <span class="badge-faltas">Faltas Acumuladas: ${s.total_faltas || 0}</span>
           </div>
-          
           <div id="ctrl_${s.id}">
             ${state.turno === 'Contraturno' ? `
               <div class="ct-opts">
-                <label>
-                  <input type="checkbox" value="Educación Física" class="ct-check" onchange="toggleCardStyle(${s.id})">
-                  <span>EF</span>
-                </label>
-                <label>
-                  <input type="checkbox" value="Formación Religiosa" class="ct-check" onchange="toggleCardStyle(${s.id})">
-                  <span>FR</span>
-                </label>
-                <label>
-                  <input type="checkbox" value="Informática" class="ct-check" onchange="toggleCardStyle(${s.id})">
-                  <span>INF</span>
-                </label>
+                <label><input type="checkbox" value="Educación Física" class="ct-check" onchange="toggleCardStyle(${s.id})"><span>EF</span></label>
+                <label><input type="checkbox" value="Formación Religiosa" class="ct-check" onchange="toggleCardStyle(${s.id})"><span>FR</span></label>
+                <label><input type="checkbox" value="Informática" class="ct-check" onchange="toggleCardStyle(${s.id})"><span>INF</span></label>
               </div>
             ` : `
               <label class="absent-toggle">
@@ -344,19 +213,18 @@
               </label>
             `}
           </div>
-
         </div>
       `).join('');
     }
 
-    // FUNCIÓN AUXILIAR: ESTILO ROJO AL SELECCIONAR FALTA
     function toggleCardStyle(id) {
       const card = document.getElementById('card_' + id);
-      const isChecked = card.querySelectorAll('input:checked').length > 0;
-      card.classList.toggle('is-absent', isChecked);
+      card.classList.toggle('is-absent', card.querySelectorAll('input:checked').length > 0);
     }
 
-    // FUNCIÓN: CONFIRMAR Y ENVIAR DATOS
+    // -----------------------------------------------------------
+    // FUNCIÓN CORREGIDA: ENVÍO Y REFRESCO SILENCIOSO (SIN RECARGA)
+    // -----------------------------------------------------------
     async function confirmarEnvio() {
       const ausentes = []; 
       const isContraturno = state.turno === 'Contraturno';
@@ -364,7 +232,6 @@
       
       alumnos.forEach(s => {
         let espaciosMarcados = []; 
-        
         if (isContraturno) { 
           const checks = Array.from(document.querySelectorAll(`#ctrl_${s.id} .ct-check:checked`));
           espaciosMarcados = checks.map(c => c.value); 
@@ -374,11 +241,7 @@
         }
         
         if (espaciosMarcados.length > 0) {
-          ausentes.push({ 
-            email: s.email_responsable, 
-            nombre: s.apellido + " " + s.nombre, 
-            espacios: espaciosMarcados 
-          });
+          ausentes.push({ email: s.email_responsable, nombre: s.apellido + " " + s.nombre, espacios: espaciosMarcados });
         }
       });
 
@@ -391,18 +254,32 @@
       try {
         const payload = { ...state, ausentes: ausentes };
         
+        // Enviamos los datos
         const response = await fetch(API_URL, { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          redirect: 'follow',
+          method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow',
           body: JSON.stringify({ action: 'enviar', email: state.email, payload: payload }) 
         });
-        
         const res = await response.json();
         
         if (res.success) { 
           alert("Éxito. Inasistencias guardadas y correos enviados a las familias."); 
-          location.reload(); // Recarga limpia para refrescar los contadores
+          
+          btn.innerText = "Actualizando Totales...";
+          
+          // Refresco Silencioso: Volvemos a consultar la API para traer los números actualizados
+          const pass = localStorage.getItem('isl_pass');
+          const refreshReq = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow',
+            body: JSON.stringify({ action: 'login', email: state.email, password: pass })
+          });
+          const refreshRes = await refreshReq.json();
+          
+          if(refreshRes.autorizado) {
+             DATA = refreshRes; // Guardamos la nueva lista de alumnos con los totales nuevos
+             const botonActivo = document.querySelector('.course-btn.active');
+             cargarCurso(state.curso, botonActivo); // Recargamos la vista del curso
+          }
+          
         } else {
           alert("Error del Servidor: " + res.error);
         }
@@ -415,7 +292,6 @@
       }
     }
 
-    // FUNCIÓN: LIMPIAR VISTA PRINCIPAL
     function resetMain() { 
       document.getElementById('studentList').innerHTML = ''; 
       document.getElementById('footer').classList.add('hidden'); 
