@@ -6,51 +6,146 @@
   <title>ISL - Sistema de Asistencia</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --navy: #2B326B; --gold: #C2A251; --red: #D82226; --bg: #F8FAFC; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #1E293B; }
+    :root { 
+      --navy: #2B326B; 
+      --gold: #C2A251; 
+      --red: #D82226; 
+      --bg: #F8FAFC; 
+    }
     
-    /* Login Styles */
-    #loginScreen { position: fixed; inset: 0; background: var(--navy); display: flex; align-items: center; justify-content: center; z-index: 200; }
-    .login-box { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .login-input { width: 100%; padding: 15px; margin-top: 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-    .btn-login { background: var(--gold); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; transition: background 0.3s; margin-top: 20px;}
+    * { box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: var(--bg); 
+      margin: 0; 
+      padding: 0; 
+      color: #1E293B; 
+    }
+    
+    /* --------------------------------------
+       ESTILOS DE LOGIN Y HEADER
+       -------------------------------------- */
+    #loginScreen { 
+      position: fixed; inset: 0; 
+      background: var(--navy); 
+      display: flex; align-items: center; justify-content: center; 
+      z-index: 200; 
+    }
+    
+    .login-box { 
+      background: white; padding: 40px; 
+      border-radius: 12px; width: 90%; max-width: 400px; 
+      text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+    }
+    
+    .login-input { 
+      width: 100%; padding: 15px; margin-top: 15px; 
+      border: 1px solid #CBD5E1; border-radius: 8px; 
+      font-size: 16px; background: #F8FAFC; 
+    }
+    
+    .btn-login { 
+      width: 100%; padding: 15px; margin-top: 20px;
+      background: var(--gold); color: white; border: none; 
+      border-radius: 8px; font-weight: 700; cursor: pointer; 
+      font-size: 16px; transition: 0.3s; 
+    }
     .btn-login:disabled { background: #CBD5E1; cursor: not-allowed; }
     
-    /* App Styles */
-    header { background: var(--navy); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+    header { 
+      background: var(--navy); color: white; 
+      padding: 15px 5%; display: flex; 
+      justify-content: space-between; align-items: center; 
+      position: sticky; top: 0; z-index: 10; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
     .header-user { display: flex; align-items: center; gap: 15px; }
-    .btn-logout { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 700; }
     
-    .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 60px); }
+    .btn-logout { 
+      background: transparent; border: 1px solid var(--gold); 
+      color: var(--gold); padding: 5px 10px; border-radius: 4px; 
+      cursor: pointer; font-size: 11px; font-weight: 700; 
+    }
+    
+    /* --------------------------------------
+       LAYOUT Y COMPONENTES
+       -------------------------------------- */
+    .layout { 
+      display: grid; grid-template-columns: 320px 1fr; 
+      min-height: calc(100vh - 60px); 
+    }
+    
     @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
-    .sidebar { background: white; padding: 25px; border-right: 1px solid #E2E8F0; }
-    .main { padding: 30px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box;}
     
-    .m-select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-size: 14px; box-sizing: border-box; }
-    .course-btn { padding: 12px 15px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    .sidebar { background: white; padding: 25px; border-right: 1px solid #E2E8F0; }
+    .main { padding: 30px; max-width: 900px; margin: 0 auto; width: 100%; }
+    
+    .m-label { font-size: 11px; font-weight: 700; color: #64748B; margin-bottom: 5px; display: block;}
+    .m-select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-size: 14px; }
+    
+    .course-btn { 
+      padding: 12px 15px; background: #F8FAFC; 
+      border: 1px solid #E2E8F0; border-radius: 8px; 
+      margin-bottom: 8px; cursor: pointer; font-weight: 600; 
+      transition: all 0.2s; 
+    }
     .course-btn.active { background: var(--gold); color: white; border-color: var(--gold); }
 
-    .student-card { background: white; padding: 16px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0; transition: all 0.2s; }
+    /* --------------------------------------
+       TARJETAS DE ALUMNOS Y SWITCHES
+       -------------------------------------- */
+    .student-card { 
+      background: white; padding: 16px 20px; border-radius: 10px; 
+      margin-bottom: 10px; display: flex; justify-content: space-between; 
+      align-items: center; border: 1px solid #E2E8F0; transition: all 0.2s; 
+    }
     .student-card.is-absent { border-left: 6px solid var(--red); background: #FFF1F2; }
+    
+    .badge-faltas { 
+      background: #F1F5F9; color: #64748B; font-size: 11px; 
+      font-weight: 800; padding: 3px 8px; border-radius: 4px; 
+      margin-left: 10px; border: 1px solid #E2E8F0;
+    }
 
-    /* Normal Switch */
+    /* Switch Turno Normal */
     .absent-toggle { position: relative; display: inline-block; width: 100px; height: 36px; }
     .absent-toggle input { display: none; }
-    .slider { position: absolute; cursor: pointer; inset: 0; background-color: #E2E8F0; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #64748B; transition: 0.3s; }
+    .slider { 
+      position: absolute; cursor: pointer; inset: 0; 
+      background-color: #E2E8F0; border-radius: 20px; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 11px; font-weight: 800; color: #64748B; transition: 0.3s; 
+    }
     .slider:before { content: 'PRESENTE'; }
     input:checked + .slider { background-color: var(--red); color: white; }
     input:checked + .slider:before { content: 'AUSENTE'; }
 
-    /* Contraturno Options */
+    /* Controles Contraturno */
     .ct-opts { display: flex; gap: 8px; }
     .ct-opts label { cursor: pointer; display: block; margin: 0; }
-    .ct-opts input[type="checkbox"] { display: none; }
-    .ct-opts span { padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; font-size: 11px; font-weight: 700; background: white; color: #64748B; transition: 0.2s; display: inline-block; }
+    .ct-opts input { display: none; }
+    .ct-opts span { 
+      padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; 
+      font-size: 11px; font-weight: 700; background: white; 
+      color: #64748B; transition: 0.2s; display: inline-block; 
+    }
     .ct-opts input:checked + span { background: var(--red); color: white; border-color: var(--red); }
 
-    .footer-actions { position: fixed; bottom: 0; right: 0; left: 0; padding: 20px; background: white; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; }
+    /* Footer y Acciones */
+    .footer-actions { 
+      position: fixed; bottom: 0; right: 0; left: 0; 
+      padding: 20px; background: white; border-top: 1px solid #E2E8F0; 
+      display: flex; justify-content: flex-end; 
+    }
     @media (min-width: 769px) { .footer-actions { left: 320px; } }
-    .btn-send { background: var(--navy); color: white; padding: 15px 40px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.3s; }
+    
+    .btn-send { 
+      background: var(--navy); color: white; padding: 15px 40px; 
+      border: none; border-radius: 8px; font-weight: 700; 
+      cursor: pointer; transition: background 0.3s; 
+    }
     .btn-send:disabled { background: #CBD5E1; cursor: not-allowed; }
     .hidden { display: none !important; }
   </style>
@@ -59,10 +154,12 @@
 
   <div id="loginScreen">
     <div class="login-box">
-      <h2 style="color:var(--navy); margin-top:0">Instituto Santa Lucía</h2>
-      <p style="color:#64748B; font-size:14px">Ingrese sus credenciales de acceso</p>
+      <h2 style="color:var(--navy); margin-top:0;">Instituto Santa Lucía</h2>
+      <p style="color:#64748B; font-size:14px;">Ingrese sus credenciales de acceso</p>
+      
       <input type="email" id="emailInput" class="login-input" placeholder="usuario@isantalucia.edu.ar">
       <input type="password" id="passInput" class="login-input" placeholder="Contraseña">
+      
       <button class="btn-login" onclick="iniciarSesion()" id="loginBtn">Ingresar al Sistema</button>
       <p id="loginError" style="color:var(--red); font-size:13px; margin-top:10px;" class="hidden"></p>
     </div>
@@ -70,16 +167,16 @@
 
   <div id="app" class="hidden">
     <header>
-      <div style="font-weight:700">SISTEMA DE ASISTENCIA</div>
+      <div style="font-weight:700">GESTIÓN DE ASISTENCIA</div>
       <div class="header-user">
-        <div id="userLabel" style="font-size:12px; font-weight:600; color:var(--gold)"></div>
+        <div id="userLabel" style="font-size:12px; color:var(--gold); font-weight: 600;"></div>
         <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
       </div>
     </header>
 
     <div class="layout">
       <aside class="sidebar">
-        <label style="font-size:11px; font-weight:700; color:#64748B;">1: TURNO</label>
+        <label class="m-label">1: TURNO</label>
         <select id="selTurno" class="m-select" onchange="cambiarTurno()">
           <option value="">Seleccione...</option>
           <option value="Mañana">Mañana</option>
@@ -87,18 +184,17 @@
           <option value="Contraturno">Contraturno</option>
         </select>
 
-        <label style="font-size:11px; font-weight:700; color:#64748B;">2: PRECEPTOR</label>
+        <label class="m-label">2: PRECEPTOR</label>
         <select id="selPreceptor" class="m-select" onchange="cambiarPreceptor()"></select>
 
-        <label style="font-size:11px; font-weight:700; color:#64748B;">3: CURSO</label>
+        <label class="m-label">3: CURSO</label>
         <div id="listaCursos"></div>
       </aside>
 
       <main class="main">
-        <h2 id="viewTitle" style="color: var(--navy);">Bienvenido</h2>
+        <h2 id="viewTitle" style="color: var(--navy); margin-top: 0;">Bienvenido</h2>
         <div id="studentList"></div>
-        <div style="height: 100px;"></div>
-      </main>
+        <div style="height: 100px;"></div> </main>
     </div>
 
     <div id="footer" class="footer-actions hidden">
@@ -108,31 +204,32 @@
 
   <script>
     // =========================================================
-    // ⚠️ REEMPLAZA ESTO CON TU URL DE APPS SCRIPT
-    const API_URL = "https://script.google.com/macros/s/AKfycbxizIafPkj-4zzmIpTyYZGTyqxW7eAFilxZEGA_RIdgYQ2un9Ulg5EBanmxxOgLczR3BA/exec"; 
+    // ⚠️ REEMPLAZA AQUÍ LA URL DE TU API DE APPS SCRIPT
     // =========================================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbxOPHiEqugGBCLgSjSCl1mKaMy0LjYGtiFrMh9xYWNZ2p0ePXxtKRU3kZEu6JrhOiiT/exec"; 
     
-    let DATA = {};
+    let DATA = {}; 
     let state = { email: '', turno: '', preceptor: '', curso: '' };
 
-    window.onload = () => {
-      const savedEmail = localStorage.getItem('isl_email');
-      const savedPass = localStorage.getItem('isl_pass');
-      
-      if (savedEmail && savedPass) {
-        document.getElementById('emailInput').value = savedEmail;
-        document.getElementById('passInput').value = savedPass;
-        iniciarSesion(true);
-      }
+    // Auto-Login: Verifica sesión al cargar la página
+    window.onload = () => { 
+      const e = localStorage.getItem('isl_email');
+      const p = localStorage.getItem('isl_pass'); 
+      if (e && p) { 
+        document.getElementById('emailInput').value = e; 
+        document.getElementById('passInput').value = p; 
+        iniciarSesion(); 
+      } 
     };
 
-    async function iniciarSesion(isAutoLogin = false) {
+    // FUNCIÓN: INICIAR SESIÓN
+    async function iniciarSesion() {
       const email = document.getElementById('emailInput').value;
       const pass = document.getElementById('passInput').value;
       const btn = document.getElementById('loginBtn');
       const err = document.getElementById('loginError');
-      
-      if(!email || !pass) {
+
+      if (!email || !pass) {
         err.innerText = "Complete ambos campos.";
         err.classList.remove('hidden');
         return;
@@ -143,33 +240,32 @@
       err.classList.add('hidden');
 
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
+        const response = await fetch(API_URL, { 
+          method: 'POST', 
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           redirect: 'follow',
-          body: JSON.stringify({ action: 'login', email: email, password: pass })
+          body: JSON.stringify({ action: 'login', email: email, password: pass }) 
         });
         
         const res = await response.json();
-
-        if (res.autorizado) {
-          DATA = res;
-          state.email = email;
+        
+        if (res.autorizado) { 
+          DATA = res; 
+          state.email = email; 
+          localStorage.setItem('isl_email', email); 
+          localStorage.setItem('isl_pass', pass); 
           
-          localStorage.setItem('isl_email', email);
-          localStorage.setItem('isl_pass', pass);
-
-          document.getElementById('userLabel').innerText = email;
-          document.getElementById('loginScreen').classList.add('hidden');
-          document.getElementById('app').classList.remove('hidden');
-        } else {
+          document.getElementById('userLabel').innerText = email; 
+          document.getElementById('loginScreen').classList.add('hidden'); 
+          document.getElementById('app').classList.remove('hidden'); 
+        } else { 
           err.innerText = res.error;
           err.classList.remove('hidden');
-          localStorage.clear();
+          localStorage.removeItem('isl_email');
+          localStorage.removeItem('isl_pass');
         }
-      } catch (error) {
-        console.error(error);
-        err.innerText = "Error de conexión. Verifica la URL de la API.";
+      } catch (e) { 
+        err.innerText = "Error de conexión. Verifica la API_URL.";
         err.classList.remove('hidden');
       } finally {
         btn.innerText = "Ingresar al Sistema";
@@ -177,157 +273,149 @@
       }
     }
 
-    function cerrarSesion() {
-      localStorage.clear();
-      location.reload();
+    // FUNCIÓN: CERRAR SESIÓN
+    function cerrarSesion() { 
+      localStorage.clear(); 
+      location.reload(); 
     }
 
-    function cambiarTurno() {
-      state.turno = document.getElementById('selTurno').value;
-      const preceptores = [...new Set(DATA.students.filter(s => s.turno == state.turno).map(s => s.preceptor))].sort();
-      document.getElementById('selPreceptor').innerHTML = '<option value="">Seleccione...</option>' + preceptores.map(p => `<option value="${p}">${p}</option>`).join('');
-      document.getElementById('listaCursos').innerHTML = '';
-      resetMain();
-    }
-
-    function cambiarPreceptor() {
-      state.preceptor = document.getElementById('selPreceptor').value;
-      const cursos = [...new Set(DATA.students.filter(s => s.turno == state.turno && s.preceptor == state.preceptor).map(s => s.curso))].sort();
-      document.getElementById('listaCursos').innerHTML = cursos.map(c => `<div class="course-btn" onclick="cargarCurso('${c}', this)">${c}</div>`).join('');
-      resetMain();
-    }
-
-    function cargarCurso(curso, el) {
-      state.curso = curso;
+    // FUNCIÓN: CAMBIAR TURNO
+    function cambiarTurno() { 
+      state.turno = document.getElementById('selTurno').value; 
+      const preceptores = [...new Set(DATA.students.filter(s => s.turno == state.turno).map(s => s.preceptor))].sort(); 
       
-      if(el) {
-        document.querySelectorAll('.course-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
+      document.getElementById('selPreceptor').innerHTML = '<option value="">Seleccione...</option>' + preceptores.map(x => `<option value="${x}">${x}</option>`).join(''); 
+      document.getElementById('listaCursos').innerHTML = ''; 
+      resetMain();
+    }
+
+    // FUNCIÓN: CAMBIAR PRECEPTOR
+    function cambiarPreceptor() { 
+      state.preceptor = document.getElementById('selPreceptor').value; 
+      const cursos = [...new Set(DATA.students.filter(s => s.turno == state.turno && s.preceptor == state.preceptor).map(s => s.curso))].sort(); 
+      
+      document.getElementById('listaCursos').innerHTML = cursos.map(x => `<div class="course-btn" onclick="cargarCurso('${x}', this)">${x}</div>`).join(''); 
+      resetMain();
+    }
+
+    // FUNCIÓN: CARGAR ALUMNOS DEL CURSO
+    function cargarCurso(curso, el) { 
+      state.curso = curso; 
+      
+      // Control visual del botón activo
+      if (el) {
+        document.querySelectorAll('.course-btn').forEach(b => b.classList.remove('active')); 
+        el.classList.add('active'); 
       }
       
-      document.getElementById('viewTitle').innerText = curso;
+      document.getElementById('viewTitle').innerText = curso; 
       document.getElementById('footer').classList.remove('hidden');
 
       const alumnos = DATA.students.filter(s => s.turno == state.turno && s.curso == curso);
       
       document.getElementById('studentList').innerHTML = alumnos.map(s => `
         <div class="student-card" id="card_${s.id}">
-          <div style="font-weight:600">${s.apellido}, ${s.nombre}</div>
+          
+          <div style="flex: 1;">
+            <span style="font-weight:600; display:block; margin-bottom: 4px;">${s.apellido}, ${s.nombre}</span>
+            <span class="badge-faltas">Faltas Acumuladas: ${s.total_faltas || 0}</span>
+          </div>
+          
           <div id="ctrl_${s.id}">
             ${state.turno === 'Contraturno' ? `
               <div class="ct-opts">
-                <label><input type="checkbox" value="Educación Física" class="ct-check" onchange="toggleContraturno(${s.id})"><span>EF</span></label>
-                <label><input type="checkbox" value="Formación Religiosa" class="ct-check" onchange="toggleContraturno(${s.id})"><span>FR</span></label>
-                <label><input type="checkbox" value="Informática" class="ct-check" onchange="toggleContraturno(${s.id})"><span>INF</span></label>
+                <label>
+                  <input type="checkbox" value="Educación Física" class="ct-check" onchange="toggleCardStyle(${s.id})">
+                  <span>EF</span>
+                </label>
+                <label>
+                  <input type="checkbox" value="Formación Religiosa" class="ct-check" onchange="toggleCardStyle(${s.id})">
+                  <span>FR</span>
+                </label>
+                <label>
+                  <input type="checkbox" value="Informática" class="ct-check" onchange="toggleCardStyle(${s.id})">
+                  <span>INF</span>
+                </label>
               </div>
             ` : `
               <label class="absent-toggle">
-                <input type="checkbox" class="check-absent" onchange="document.getElementById('card_${s.id}').classList.toggle('is-absent', this.checked)">
+                <input type="checkbox" value="${state.turno}" class="check-absent" onchange="toggleCardStyle(${s.id})">
                 <div class="slider"></div>
               </label>
             `}
           </div>
+
         </div>
       `).join('');
     }
 
-    // Función auxiliar para pintar de rojo la fila si tocan alguna materia de Contraturno
-    function toggleContraturno(id) {
+    // FUNCIÓN AUXILIAR: ESTILO ROJO AL SELECCIONAR FALTA
+    function toggleCardStyle(id) {
       const card = document.getElementById('card_' + id);
-      const checks = card.querySelectorAll('.ct-check:checked');
-      card.classList.toggle('is-absent', checks.length > 0);
+      const isChecked = card.querySelectorAll('input:checked').length > 0;
+      card.classList.toggle('is-absent', isChecked);
     }
 
+    // FUNCIÓN: CONFIRMAR Y ENVIAR DATOS
     async function confirmarEnvio() {
+      const ausentes = []; 
       const isContraturno = state.turno === 'Contraturno';
-      const queue = [];
-      const config = isContraturno ? DATA.config.contraturno : DATA.config.turno;
-      const fechaHoy = new Date().toLocaleDateString();
-      let totalAusentes = 0;
-
-      // Obtenemos los alumnos del curso actual listados en pantalla
-      const alumnosRenderizados = DATA.students.filter(s => s.turno == state.turno && s.curso == state.curso);
-
-      alumnosRenderizados.forEach(s => {
-        let esAusente = false;
-        let txtEspacio = state.turno; // Texto por defecto
+      const alumnos = DATA.students.filter(s => s.turno == state.turno && s.curso == state.curso);
+      
+      alumnos.forEach(s => {
+        let espaciosMarcados = []; 
         
-        // Verificamos quién está marcado según el modo de turno
-        if (isContraturno) {
+        if (isContraturno) { 
           const checks = Array.from(document.querySelectorAll(`#ctrl_${s.id} .ct-check:checked`));
-          if (checks.length > 0) {
-            esAusente = true;
-            // Une las materias marcadas: "Educación Física y Formación Religiosa"
-            txtEspacio = checks.map(c => c.value).join(" y "); 
-          }
+          espaciosMarcados = checks.map(c => c.value); 
         } else {
           const check = document.querySelector(`#ctrl_${s.id} .check-absent`);
-          if (check && check.checked) {
-            esAusente = true;
-          }
+          if (check && check.checked) espaciosMarcados.push(check.value);
         }
-
-        // Si faltó, armamos el correo
-        if (esAusente) {
-          totalAusentes++;
-          const nombreCompleto = s.apellido + " " + s.nombre;
-          
-          let asunto = config.subject
-            .replace(/\{\{alumno\}\}/gi, nombreCompleto)
-            .replace(/\{\{curso\}\}/gi, state.curso)
-            .replace(/\{\{preceptor\}\}/gi, state.preceptor)
-            .replace(/\{\{espacio\}\}/gi, txtEspacio)
-            .replace(/\{\{fecha\}\}/gi, fechaHoy);
-
-          let cuerpo = config.body
-            .replace(/\{\{alumno\}\}/gi, nombreCompleto)
-            .replace(/\{\{curso\}\}/gi, state.curso)
-            .replace(/\{\{preceptor\}\}/gi, state.preceptor)
-            .replace(/\{\{espacio\}\}/gi, txtEspacio)
-            .replace(/\{\{fecha\}\}/gi, fechaHoy);
-
-          queue.push({
-            to: s.email_responsable,
-            subject: asunto,
-            body: cuerpo
+        
+        if (espaciosMarcados.length > 0) {
+          ausentes.push({ 
+            email: s.email_responsable, 
+            nombre: s.apellido + " " + s.nombre, 
+            espacios: espaciosMarcados 
           });
         }
       });
 
-      if (!confirm(`¿Confirmar asistencia? Se enviarán ${totalAusentes} avisos.`)) return;
-
+      if (!confirm(`¿Confirmar asistencia? Se registrarán ${ausentes.length} inasistencias en el sistema.`)) return;
+      
       const btn = document.getElementById('sendBtn');
       btn.disabled = true;
-      btn.innerText = "Procesando...";
-
+      btn.innerText = "Procesando en la Base de Datos...";
+      
       try {
-        const payload = { queue: queue, resumen: { curso: state.curso, turno: state.turno, total: alumnosRenderizados.length } };
+        const payload = { ...state, ausentes: ausentes };
         
-        const response = await fetch(API_URL, {
-          method: 'POST',
+        const response = await fetch(API_URL, { 
+          method: 'POST', 
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           redirect: 'follow',
-          body: JSON.stringify({ action: 'enviar', email: state.email, payload: payload })
+          body: JSON.stringify({ action: 'enviar', email: state.email, payload: payload }) 
         });
         
         const res = await response.json();
         
-        if(res.success) {
-            alert("Asistencia registrada con éxito.");
-            const botonActivo = document.querySelector('.course-btn.active');
-            cargarCurso(state.curso, botonActivo);
+        if (res.success) { 
+          alert("Éxito. Inasistencias guardadas y correos enviados a las familias."); 
+          location.reload(); // Recarga limpia para refrescar los contadores
         } else {
-            alert("Error al guardar: " + res.error);
+          alert("Error del Servidor: " + res.error);
         }
-      } catch (error) {
-        console.error(error);
-        alert("Error de conexión al enviar.");
+      } catch (e) { 
+        console.error(e);
+        alert("Error de conexión al guardar los datos."); 
       } finally {
         btn.disabled = false;
         btn.innerText = "Confirmar Asistencia";
       }
     }
 
+    // FUNCIÓN: LIMPIAR VISTA PRINCIPAL
     function resetMain() { 
       document.getElementById('studentList').innerHTML = ''; 
       document.getElementById('footer').classList.add('hidden'); 
