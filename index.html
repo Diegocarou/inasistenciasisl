@@ -77,6 +77,78 @@
 
     /* Elementos de Carga y Mensajes Vacíos */
     .pantalla-espera { display: flex; flex: 1; align-items: center; justify-content: center; font-size: 16px; color: #64748b; text-align: center; flex-direction: column; gap: 10px; }
+/* =========================================
+       ADAPTACIÓN PARA CELULARES (MOBILE RESPONSIVE)
+       ========================================= */
+    @media (max-width: 768px) {
+      /* Apilar el encabezado y centrar textos */
+      .header-institucional {
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+        gap: 12px;
+        text-align: center;
+      }
+      .header-institucional h1 {
+        font-size: 18px;
+        line-height: 1.2;
+      }
+      .contenedor-fecha {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      /* Apilar el menú lateral sobre la lista de alumnos */
+      .contenedor-aplicacion {
+        flex-direction: column;
+        overflow-y: auto; /* Permite scroll en toda la pantalla */
+      }
+      
+      /* Panel Lateral pasa a estar arriba y ocupar todo el ancho */
+      .panel-navegacion {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 20px 15px;
+        gap: 15px;
+      }
+      
+      /* Área de trabajo de la nómina */
+      .panel-trabajo {
+        padding: 15px;
+        overflow-y: visible; 
+      }
+      
+      /* Ajustar el cartel de suspensión para que el texto no se corte */
+      .banner-suspension {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        gap: 10px;
+      }
+      
+      /* Ajustar cada alumno de la lista */
+      .item-alumno {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 15px;
+      }
+      .datos-alumno-bloque {
+        width: 100%;
+      }
+      
+      /* Botones anchos para que sean fáciles de tocar en el celular */
+      .btn-ciclo-asistencia {
+        width: 100%;
+        padding: 12px 0;
+        font-size: 14px;
+      }
+      .btn-confirmar-total {
+        width: 100%;
+        padding: 16px;
+      }
+    }
   </style>
 </head>
 <body>
