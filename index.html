@@ -149,6 +149,34 @@
         padding: 16px;
       }
     }
+    /* =========================================
+       CORRECCIÓN DE APILAMIENTO (CARTEL -> LISTA -> BOTÓN)
+       ========================================= */
+    #bloque-asistencia-activa {
+      flex-direction: column !important;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      /* Forzar que el checkbox y el texto queden uno al lado del otro */
+      .banner-suspension {
+        flex-direction: row !important;
+        align-items: center;
+        text-align: left;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+      }
+      
+      .banner-suspension span {
+        font-size: 14px;
+      }
+      
+      /* Asegurar que la lista ocupe todo el ancho sin aplastarse */
+      .contenedor-alumnos {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+    }
   </style>
 </head>
 <body>
