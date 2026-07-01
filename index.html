@@ -45,13 +45,19 @@
     /* Área de Trabajo de la Nómina */
     .panel-trabajo { flex: 1; display: flex; flex-direction: column; padding: 35px; overflow-y: auto; }
     
+    /* Contenedor Principal de Asistencia (Acomoda los elementos en columna) */
+    #bloque-asistencia-activa {
+      flex-direction: column !important;
+      width: 100%;
+    }
+
     /* Cartel de Suspensión */
     .banner-suspension { background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px 24px; display: flex; align-items: center; gap: 15px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; margin-bottom: 25px; }
-    .banner-suspension input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+    .banner-suspension input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; }
     .banner-suspension.activo { border-color: var(--p-verde); background: #f0fdf4; color: #166534; }
 
     /* Estructura de Lista de Alumnos */
-    .contenedor-alumnos { background: white; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); overflow: hidden; margin-bottom: 25px; }
+    .contenedor-alumnos { background: white; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); overflow: hidden; margin-bottom: 25px; width: 100%; }
     .item-alumno { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; border-bottom: 1px solid #f1f5f9; }
     .item-alumno:last-child { border-bottom: none; }
     
@@ -60,7 +66,7 @@
     .acumulador-mensual { font-size: 12px; color: #64748b; font-weight: 500; }
 
     /* Botón Rotativo de Estados */
-    .btn-ciclo-asistencia { width: 160px; padding: 10px 0; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; text-align: center; color: white; cursor: pointer; text-transform: uppercase; transition: transform 0.1s; }
+    .btn-ciclo-asistencia { width: 160px; padding: 10px 0; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; text-align: center; color: white; cursor: pointer; text-transform: uppercase; transition: transform 0.1s; flex-shrink: 0; }
     .btn-ciclo-asistencia:active { transform: scale(0.97); }
     
     .estado-p { background-color: var(--p-verde); }
@@ -71,111 +77,38 @@
     .contenedor-alumnos.linea-verde-total .item-alumno { background-color: #f8fafc; opacity: 0.55; pointer-events: none; border-left: 6px solid var(--p-verde); }
 
     /* Botón de Envío de Datos */
-    .bloque-confirmacion { display: flex; justify-content: flex-end; }
+    .bloque-confirmacion { display: flex; justify-content: flex-end; width: 100%; }
     .btn-confirmar-total { background-color: var(--azul-primario); color: white; border: none; padding: 14px 35px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(43,50,107,0.2); transition: background 0.2s; }
     .btn-confirmar-total:hover { background-color: #1e2452; }
 
     /* Elementos de Carga y Mensajes Vacíos */
     .pantalla-espera { display: flex; flex: 1; align-items: center; justify-content: center; font-size: 16px; color: #64748b; text-align: center; flex-direction: column; gap: 10px; }
-/* =========================================
+
+    /* =========================================
        ADAPTACIÓN PARA CELULARES (MOBILE RESPONSIVE)
        ========================================= */
     @media (max-width: 768px) {
-      /* Apilar el encabezado y centrar textos */
-      .header-institucional {
-        flex-direction: column;
-        height: auto;
-        padding: 15px;
-        gap: 12px;
-        text-align: center;
-      }
-      .header-institucional h1 {
-        font-size: 18px;
-        line-height: 1.2;
-      }
-      .contenedor-fecha {
-        width: 100%;
-        justify-content: center;
-      }
+      .header-institucional { flex-direction: column; height: auto; padding: 15px; gap: 12px; text-align: center; }
+      .header-institucional h1 { font-size: 18px; line-height: 1.2; }
+      .contenedor-fecha { width: 100%; justify-content: center; }
       
-      /* Apilar el menú lateral sobre la lista de alumnos */
-      .contenedor-aplicacion {
-        flex-direction: column;
-        overflow-y: auto; /* Permite scroll en toda la pantalla */
-      }
+      .contenedor-aplicacion { flex-direction: column; overflow-y: auto; }
       
-      /* Panel Lateral pasa a estar arriba y ocupar todo el ancho */
-      .panel-navegacion {
-        width: 100%;
-        border-right: none;
-        border-bottom: 2px solid #e2e8f0;
-        padding: 20px 15px;
-        gap: 15px;
-      }
+      .panel-navegacion { width: 100%; border-right: none; border-bottom: 2px solid #e2e8f0; padding: 20px 15px; gap: 15px; }
       
-      /* Área de trabajo de la nómina */
-      .panel-trabajo {
-        padding: 15px;
-        overflow-y: visible; 
-      }
+      .panel-trabajo { padding: 15px; overflow-y: visible; }
       
-      /* Ajustar el cartel de suspensión para que el texto no se corte */
-      .banner-suspension {
-        flex-direction: column;
-        text-align: center;
-        padding: 15px;
-        gap: 10px;
-      }
+      .banner-suspension { flex-direction: row !important; align-items: center; text-align: left; padding: 12px 15px; margin-bottom: 15px; }
+      .banner-suspension span { font-size: 14px; }
       
-      /* Ajustar cada alumno de la lista */
-      .item-alumno {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 15px;
-      }
-      .datos-alumno-bloque {
-        width: 100%;
-      }
+      .contenedor-alumnos { width: 100%; margin-bottom: 20px; }
+      .item-alumno { flex-direction: column; align-items: flex-start; gap: 12px; padding: 15px; }
+      .datos-alumno-bloque { width: 100%; }
       
-      /* Botones anchos para que sean fáciles de tocar en el celular */
-      .btn-ciclo-asistencia {
-        width: 100%;
-        padding: 12px 0;
-        font-size: 14px;
-      }
-      .btn-confirmar-total {
-        width: 100%;
-        padding: 16px;
-      }
-    }
-    /* =========================================
-       CORRECCIÓN DE APILAMIENTO (CARTEL -> LISTA -> BOTÓN)
-       ========================================= */
-    #bloque-asistencia-activa {
-      flex-direction: column !important;
-      width: 100%;
-    }
-
-    @media (max-width: 768px) {
-      /* Forzar que el checkbox y el texto queden uno al lado del otro */
-      .banner-suspension {
-        flex-direction: row !important;
-        align-items: center;
-        text-align: left;
-        padding: 12px 15px;
-        margin-bottom: 15px;
-      }
+      .btn-ciclo-asistencia { width: 100%; padding: 12px 0; font-size: 14px; }
       
-      .banner-suspension span {
-        font-size: 14px;
-      }
-      
-      /* Asegurar que la lista ocupe todo el ancho sin aplastarse */
-      .contenedor-alumnos {
-        width: 100%;
-        margin-bottom: 20px;
-      }
+      .bloque-confirmacion { justify-content: center; }
+      .btn-confirmar-total { width: 100%; padding: 16px; }
     }
   </style>
 </head>
@@ -226,7 +159,7 @@
   </div>
 
   <script>
-    // URL DE CONEXIÓN CON GOOGLE DRIVE (Asegurarse de pegar el enlace de tu implementación de Apps Script)
+    // URL DE CONEXIÓN CON GOOGLE DRIVE (¡REEMPLAZAR POR LA TUYA!)
     const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyi7JMqqAjN9c60IZZoekQK75-lJ3ET8wOlkch7afFz3LJnybAceEfh9fNbTLs8JUaJvQ/exec";
     
     // Sesión Simulada del Preceptor Logueado (Vercel debe proveer el email del login aquí)
@@ -256,7 +189,6 @@
       document.getElementById('mensaje-inicial').style.display = 'flex';
       document.getElementById('mensaje-inicial').innerHTML = '<p>Sincronizando grilla horaria con Google Drive...</p>';
 
-      // Petición POST limpia en formato texto plano para evitar bloqueos por CORS (OPTIONS)
       fetch(API_GOOGLE_URL, {
         method: 'POST',
         mode: 'cors',
