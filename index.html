@@ -2,300 +2,368 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ISL - Sistema de Asistencia</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestión de Asistencias - ISL</title>
   <style>
-    :root { --navy: #2B326B; --gold: #C2A251; --red: #D82226; --bg: #F8FAFC; }
-    * { box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #1E293B; }
-    
-    #loginScreen { position: fixed; inset: 0; background: var(--navy); display: flex; align-items: center; justify-content: center; z-index: 200; }
-    .login-box { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .login-input { width: 100%; padding: 15px; margin-top: 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 16px; background: #F8FAFC; }
-    .btn-login { width: 100%; padding: 15px; margin-top: 20px; background: var(--gold); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; transition: 0.3s; }
-    .btn-login:disabled { background: #CBD5E1; cursor: not-allowed; }
-    
-    header { background: var(--navy); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
-    .header-user { display: flex; align-items: center; gap: 15px; }
-    .btn-logout { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 700; }
-    
-    .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 60px); }
-    @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
-    
-    .sidebar { background: white; padding: 25px; border-right: 1px solid #E2E8F0; }
-    .main { padding: 30px; max-width: 900px; margin: 0 auto; width: 100%; }
-    
-    .m-label { font-size: 11px; font-weight: 700; color: #64748B; margin-bottom: 5px; display: block;}
-    .m-select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F1F5F9; font-size: 14px; }
-    
-    .course-btn { padding: 12px 15px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-    .course-btn.active { background: var(--gold); color: white; border-color: var(--gold); }
+    :root {
+      --azul-primario: #2b326b;
+      --oro-acento: #c5a059;
+      --bg-gris: #f4f6f9;
+      --p-verde: #2ecc71;
+      --a-rojo: #e74c3c;
+      --aj-verde-oscuro: #27ae60;
+      --texto-oscuro: #1e293b;
+    }
 
-    .student-card { background: white; padding: 16px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #E2E8F0; transition: all 0.2s; }
-    .student-card.is-absent { border-left: 6px solid var(--red); background: #FFF1F2; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background-color: var(--bg-gris); display: flex; flex-direction: column; height: 100vh; color: var(--texto-oscuro); }
+
+    /* Barra Superior Unificada */
+    .header-institucional { background-color: var(--azul-primario); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .header-institucional h1 { font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
     
-    .badge-faltas { background: #F1F5F9; color: #64748B; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; margin-left: 10px; border: 1px solid #E2E8F0;}
+    /* Selector de Fecha Central */
+    .contenedor-fecha { background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 6px; display: flex; align-items: center; }
+    .contenedor-fecha input[type="date"] { border: none; background: transparent; color: white; font-size: 16px; font-weight: bold; outline: none; cursor: pointer; text-align: center; }
+    .contenedor-fecha input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 
-    .absent-toggle { position: relative; display: inline-block; width: 100px; height: 36px; }
-    .absent-toggle input { display: none; }
-    .slider { position: absolute; cursor: pointer; inset: 0; background-color: #E2E8F0; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #64748B; transition: 0.3s; }
-    .slider:before { content: 'PRESENTE'; }
-    input:checked + .slider { background-color: var(--red); color: white; }
-    input:checked + .slider:before { content: 'AUSENTE'; }
+    /* Cuerpo Principal Flex */
+    .contenedor-aplicacion { flex: 1; display: flex; overflow: hidden; }
 
-    .ct-opts { display: flex; gap: 8px; }
-    .ct-opts label { cursor: pointer; display: block; margin: 0; }
-    .ct-opts input { display: none; }
-    .ct-opts span { padding: 8px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; font-size: 11px; font-weight: 700; background: white; color: #64748B; transition: 0.2s; display: inline-block; }
-    .ct-opts input:checked + span { background: var(--red); color: white; border-color: var(--red); }
-
-    .footer-actions { position: fixed; bottom: 0; right: 0; left: 0; padding: 20px; background: white; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; }
-    @media (min-width: 769px) { .footer-actions { left: 320px; } }
+    /* Panel Izquierdo (Cursos y Materias) */
+    .panel-navegacion { width: 280px; background: white; border-right: 1px solid #e2e8f0; padding: 25px 20px; display: flex; flex-direction: column; gap: 20px; }
+    .titulo-seccion { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
     
-    .btn-send { background: var(--navy); color: white; padding: 15px 40px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.3s; }
-    .btn-send:disabled { background: #CBD5E1; cursor: not-allowed; }
-    .hidden { display: none !important; }
+    .select-curso { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 15px; font-weight: 600; outline: none; background-color: #fafafa; cursor: pointer; color: var(--texto-oscuro); }
+    .select-curso:focus { border-color: var(--azul-primario); }
+
+    .lista-botones-materias { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; margin-top: 10px; }
+    .btn-materia { width: 100%; padding: 14px; text-align: left; border: none; background: #f1f5f9; border-radius: 6px; color: var(--texto-oscuro); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-materia:hover { background: #e2e8f0; }
+    .btn-materia.seleccionada { background: var(--oro-acento); color: white; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+    /* Área de Trabajo de la Nómina */
+    .panel-trabajo { flex: 1; display: flex; flex-direction: column; padding: 35px; overflow-y: auto; }
+    
+    /* Cartel de Suspensión */
+    .banner-suspension { background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px 24px; display: flex; align-items: center; gap: 15px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; margin-bottom: 25px; }
+    .banner-suspension input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+    .banner-suspension.activo { border-color: var(--p-verde); background: #f0fdf4; color: #166534; }
+
+    /* Estructura de Lista de Alumnos */
+    .contenedor-alumnos { background: white; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); overflow: hidden; margin-bottom: 25px; }
+    .item-alumno { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; border-bottom: 1px solid #f1f5f9; }
+    .item-alumno:last-child { border-bottom: none; }
+    
+    .datos-alumno-bloque { display: flex; flex-direction: column; gap: 4px; }
+    .nombre-alumno { font-size: 16px; font-weight: 600; color: #0f172a; }
+    .acumulador-mensual { font-size: 12px; color: #64748b; font-weight: 500; }
+
+    /* Botón Rotativo de Estados */
+    .btn-ciclo-asistencia { width: 160px; padding: 10px 0; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; text-align: center; color: white; cursor: pointer; text-transform: uppercase; transition: transform 0.1s; }
+    .btn-ciclo-asistencia:active { transform: scale(0.97); }
+    
+    .estado-p { background-color: var(--p-verde); }
+    .estado-a { background-color: var(--a-rojo); }
+    .estado-aj { background-color: var(--aj-verde-oscuro); border: 2px solid var(--azul-primario); }
+
+    /* Efecto Suspensión de Clases en la Nómina Completa */
+    .contenedor-alumnos.linea-verde-total .item-alumno { background-color: #f8fafc; opacity: 0.55; pointer-events: none; border-left: 6px solid var(--p-verde); }
+
+    /* Botón de Envío de Datos */
+    .bloque-confirmacion { display: flex; justify-content: flex-end; }
+    .btn-confirmar-total { background-color: var(--azul-primario); color: white; border: none; padding: 14px 35px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(43,50,107,0.2); transition: background 0.2s; }
+    .btn-confirmar-total:hover { background-color: #1e2452; }
+
+    /* Elementos de Carga y Mensajes Vacíos */
+    .pantalla-espera { display: flex; flex: 1; align-items: center; justify-content: center; font-size: 16px; color: #64748b; text-align: center; flex-direction: column; gap: 10px; }
   </style>
 </head>
 <body>
 
-  <div id="loginScreen">
-    <div class="login-box">
-      <h2 style="color:var(--navy); margin-top:0;">Instituto Santa Lucía</h2>
-      <p style="color:#64748B; font-size:14px;">Ingrese sus credenciales de acceso</p>
-      <input type="email" id="emailInput" class="login-input" placeholder="usuario@isantalucia.edu.ar">
-      <input type="password" id="passInput" class="login-input" placeholder="Contraseña">
-      <button class="btn-login" onclick="iniciarSesion()" id="loginBtn">Ingresar al Sistema</button>
-      <p id="loginError" style="color:var(--red); font-size:13px; margin-top:10px;" class="hidden"></p>
+  <header class="header-institucional">
+    <h1>Gestión de Asistencia</h1>
+    
+    <div class="contenedor-fecha">
+      <input type="date" id="fecha-global" onchange="obtenerDatosServidor()">
     </div>
-  </div>
+    
+    <div style="font-size: 14px; font-weight: 600;" id="usuario-badge">Preceptor Contraturno</div>
+  </header>
 
-  <div id="app" class="hidden">
-    <header>
-      <div style="font-weight:700">GESTIÓN DE ASISTENCIA</div>
-      <div class="header-user">
-        <div id="userLabel" style="font-size:12px; color:var(--gold); font-weight: 600;"></div>
-        <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+  <div class="contenedor-aplicacion">
+    
+    <aside class="panel-navegacion">
+      <div>
+        <div class="titulo-seccion" style="margin-bottom: 8px;">1: Seleccionar Curso</div>
+        <select id="select-curso" class="select-curso" onchange="cambiarCurso()"></select>
       </div>
-    </header>
+      
+      <div style="flex: 1; display: flex; flex-direction: column;">
+        <div class="titulo-seccion">2: Materias Asignadas</div>
+        <div id="lista-materias" class="lista-botones-materias"></div>
+      </div>
+    </aside>
 
-    <div class="layout">
-      <aside class="sidebar">
-        <label class="m-label">1: TURNO</label>
-        <select id="selTurno" class="m-select" onchange="cambiarTurno()">
-          <option value="">Seleccione...</option>
-          <option value="Mañana">Mañana</option>
-          <option value="Tarde">Tarde</option>
-          <option value="Contraturno">Contraturno</option>
-        </select>
+    <main id="panel-principal-trabajo" class="panel-trabajo">
+      <div id="mensaje-inicial" class="pantalla-espera">
+        <p>Por favor, elija un curso y haga clic sobre la materia correspondiente para desplegar la nómina.</p>
+      </div>
 
-        <label class="m-label">2: PRECEPTOR</label>
-        <select id="selPreceptor" class="m-select" onchange="cambiarPreceptor()"></select>
+      <div id="bloque-asistencia-activa" style="display: none;">
+        <label id="label-suspension" class="banner-suspension" for="check-suspension">
+          <input type="checkbox" id="check-suspension" onchange="procesarCambioSuspension(this.checked)">
+          <span>Marcar este bloque horario como SUSPENDIDO (No computará ausencias)</span>
+        </label>
 
-        <label class="m-label">3: CURSO</label>
-        <div id="listaCursos"></div>
-      </aside>
+        <div id="lista-alumnos-planilla" class="contenedor-alumnos"></div>
 
-      <main class="main">
-        <h2 id="viewTitle" style="color: var(--navy); margin-top: 0;">Bienvenido</h2>
-        <div id="studentList"></div>
-        <div style="height: 100px;"></div>
-      </main>
-    </div>
-
-    <div id="footer" class="footer-actions hidden">
-      <button id="sendBtn" class="btn-send" onclick="confirmarEnvio()">Confirmar Asistencia</button>
-    </div>
+        <div class="bloque-confirmacion">
+          <button class="btn-confirmar-total" onclick="enviarAsistenciaFormulario()">Confirmar Asistencia</button>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
-    // =========================================================
-    // ⚠️ REEMPLAZA AQUÍ LA URL DE TU API DE APPS SCRIPT
-    // =========================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbxo9s0joCtxXv1s3vNZehQHR2SUMKjH9dc8z31rq73l-5QQrjVjPTGt9NQGm5_6cjvrFQ/exec"; 
+    // URL DE CONEXIÓN CON GOOGLE DRIVE (Asegurarse de pegar el enlace de tu implementación de Apps Script)
+    const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyi7JMqqAjN9c60IZZoekQK75-lJ3ET8wOlkch7afFz3LJnybAceEfh9fNbTLs8JUaJvQ/exec";
     
-    let DATA = {}; 
-    let state = { email: '', turno: '', preceptor: '', curso: '' };
+    // Sesión Simulada del Preceptor Logueado (Vercel debe proveer el email del login aquí)
+    const EMAIL_PRECEPTOR_ACTIVO = "dcarou@isantalucia.edu.ar"; 
 
-    window.onload = () => { 
-      const e = localStorage.getItem('isl_email');
-      const p = localStorage.getItem('isl_pass'); 
-      if (e && p) { 
-        document.getElementById('emailInput').value = e; 
-        document.getElementById('passInput').value = p; 
-        iniciarSesion(); 
-      } 
+    // Almacenamiento local temporal de datos cruzados
+    let memoriaLocal = {};
+    let cursoActivo = "";
+    let materiaActiva = "";
+
+    window.onload = function() {
+      // Forzar fecha de hoy de manera local al iniciar
+      const fechaHoy = new Date();
+      const timezoneOffset = fechaHoy.getTimezoneOffset() * 60000;
+      const fechaLocal = new Date(fechaHoy.getTime() - timezoneOffset);
+      document.getElementById('fecha-global').value = fechaLocal.toISOString().split('T')[0];
+      document.getElementById('usuario-badge').innerText = EMAIL_PRECEPTOR_ACTIVO;
+      
+      obtenerDatosServidor();
     };
 
-    async function iniciarSesion() {
-      const email = document.getElementById('emailInput').value;
-      const pass = document.getElementById('passInput').value;
-      const btn = document.getElementById('loginBtn');
-      const err = document.getElementById('loginError');
+    function obtenerDatosServidor() {
+      const fechaSeleccionada = document.getElementById('fecha-global').value;
+      if (!fechaSeleccionada) return;
 
-      if (!email || !pass) { err.innerText = "Complete ambos campos."; err.classList.remove('hidden'); return; }
+      document.getElementById('bloque-asistencia-activa').style.display = 'none';
+      document.getElementById('mensaje-inicial').style.display = 'flex';
+      document.getElementById('mensaje-inicial').innerHTML = '<p>Sincronizando grilla horaria con Google Drive...</p>';
 
-      btn.innerText = "Verificando..."; btn.disabled = true; err.classList.add('hidden');
+      // Petición POST limpia en formato texto plano para evitar bloqueos por CORS (OPTIONS)
+      fetch(API_GOOGLE_URL, {
+        method: 'POST',
+        mode: 'cors',
+        body: JSON.stringify({
+          action: 'obtener_datos_contraturno',
+          fecha: fechaSeleccionada,
+          email: EMAIL_PRECEPTOR_ACTIVO
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        memoriaLocal = res;
+        construirSelectorCursos();
+        document.getElementById('mensaje-inicial').innerHTML = '<p>Por favor, elija un curso y haga clic sobre la materia correspondiente para desplegar la nómina.</p>';
+      })
+      .catch(err => {
+        document.getElementById('mensaje-inicial').innerHTML = '<p style="color:red;">Error de sincronización con la base de datos central.</p>';
+      });
+    }
 
-      try {
-        const response = await fetch(API_URL, { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          redirect: 'follow',
-          body: JSON.stringify({ action: 'login', email: email, password: pass }) 
-        });
-        const res = await response.json();
+    function construirSelectorCursos() {
+      const select = document.getElementById('select-curso');
+      select.innerHTML = '<option value="">Elegir...</option>';
+      
+      const cursos = Object.keys(memoriaLocal.estructuraCursos || {});
+      cursos.forEach(c => {
+        let opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        select.appendChild(opt);
+      });
+      
+      document.getElementById('lista-materias').innerHTML = '';
+      cursoActivo = "";
+      materiaActiva = "";
+    }
+
+    function cambiarCurso() {
+      cursoActivo = document.getElementById('select-curso').value;
+      const contenedorMaterias = document.getElementById('lista-materias');
+      contenedorMaterias.innerHTML = '';
+      document.getElementById('bloque-asistencia-activa').style.display = 'none';
+      document.getElementById('mensaje-inicial').style.display = 'flex';
+
+      if (!cursoActivo) return;
+
+      const materias = memoriaLocal.estructuraCursos[cursoActivo] || [];
+      materias.forEach(mat => {
+        let btn = document.createElement('button');
+        btn.className = 'btn-materia';
+        btn.textContent = mat;
+        btn.onclick = function() {
+          document.querySelectorAll('.btn-materia').forEach(b => b.classList.remove('seleccionada'));
+          btn.classList.add('seleccionada');
+          desplegarNominaEstudiantes(mat);
+        };
+        contenedorMaterias.appendChild(btn);
+      });
+    }
+
+    function desplegarNominaEstudiantes(materia) {
+      materiaActiva = materia;
+      const planilla = document.getElementById('lista-alumnos-planilla');
+      planilla.innerHTML = '';
+
+      const alumnos = memoriaLocal.alumnosPorCurso[cursoActivo] || [];
+      const claveIdentificacion = cursoActivo + "||" + materiaActiva;
+      const historialEstados = memoriaLocal.historialGuardado[claveIdentificacion] || {};
+      const tieneSuspensionPrevia = memoriaLocal.clasesSuspendidas[claveIdentificacion] || false;
+
+      // Sincronizar banner e interruptor de suspensión
+      const chkSuspension = document.getElementById('check-suspension');
+      chkSuspension.checked = tieneSuspensionPrevia;
+      procesarCambioSuspension(tieneSuspensionPrevia);
+
+      // Capturar fecha actual para mostrar acumulador del mes corriente
+      const mesesNombres = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const mesNombreActivo = mesesNombres[new Date(document.getElementById('fecha-global').value).getMonth()];
+
+      alumnos.forEach(alumno => {
+        let fila = document.createElement('div');
+        fila.className = 'item-alumno';
+
+        let bloqueDatos = document.createElement('div');
+        bloqueDatos.className = 'datos-alumno-bloque';
+
+        let spanNombre = document.createElement('span');
+        spanNombre.className = 'nombre-alumno';
+        spanNombre.textContent = alumno;
+
+        // Mostrar sumatoria mensual calculada en Drive
+        let spanAcumulador = document.createElement('span');
+        spanAcumulador.className = 'acumulador-mensual';
+        let resAlum = (memoriaLocal.resumenMensual[alumno] && memoriaLocal.resumenMensual[alumno][mesNombreActivo]) 
+                      ? memoriaLocal.resumenMensual[alumno][mesNombreActivo] 
+                      : { P: 0, A: 0, AJ: 0 };
+        spanAcumulador.textContent = `Totales Mensuales (${mesNombreActivo.toUpperCase()}): Presentes: ${resAlum.P} | Ausentes: ${resAlum.A} | Justificadas: ${resAlum.AJ}`;
+
+        bloqueDatos.appendChild(spanNombre);
+        bloqueDatos.appendChild(spanAcumulador);
+
+        let botonAsis = document.createElement('button');
+        botonAsis.className = 'btn-ciclo-asistencia';
         
-        if (res.autorizado) { 
-          DATA = res; state.email = email; 
-          localStorage.setItem('isl_email', email); localStorage.setItem('isl_pass', pass); 
-          document.getElementById('userLabel').innerText = email; 
-          document.getElementById('loginScreen').classList.add('hidden'); 
-          document.getElementById('app').classList.remove('hidden'); 
-        } else { 
-          err.innerText = res.error; err.classList.remove('hidden');
-          localStorage.removeItem('isl_email'); localStorage.removeItem('isl_pass');
-        }
-      } catch (e) { 
-        err.innerText = "Error de conexión. Verifica la API_URL."; err.classList.remove('hidden');
-      } finally {
-        btn.innerText = "Ingresar al Sistema"; btn.disabled = false;
-      }
-    }
-
-    function cerrarSesion() { localStorage.clear(); location.reload(); }
-
-    function cambiarTurno() { 
-      state.turno = document.getElementById('selTurno').value; 
-      const preceptores = [...new Set(DATA.students.filter(s => s.turno == state.turno).map(s => s.preceptor))].sort(); 
-      document.getElementById('selPreceptor').innerHTML = '<option value="">Seleccione...</option>' + preceptores.map(x => `<option value="${x}">${x}</option>`).join(''); 
-      document.getElementById('listaCursos').innerHTML = ''; 
-      resetMain();
-    }
-
-    function cambiarPreceptor() { 
-      state.preceptor = document.getElementById('selPreceptor').value; 
-      const cursos = [...new Set(DATA.students.filter(s => s.turno == state.turno && s.preceptor == state.preceptor).map(s => s.curso))].sort(); 
-      document.getElementById('listaCursos').innerHTML = cursos.map(x => `<div class="course-btn" onclick="cargarCurso('${x}', this)">${x}</div>`).join(''); 
-      resetMain();
-    }
-
-    function cargarCurso(curso, el) { 
-      state.curso = curso; 
-      if (el) {
-        document.querySelectorAll('.course-btn').forEach(b => b.classList.remove('active')); 
-        el.classList.add('active'); 
-      }
-      
-      document.getElementById('viewTitle').innerText = curso; 
-      document.getElementById('footer').classList.remove('hidden');
-
-      const alumnos = DATA.students.filter(s => s.turno == state.turno && s.curso == curso);
-      
-      document.getElementById('studentList').innerHTML = alumnos.map(s => `
-        <div class="student-card" id="card_${s.id}">
-          <div style="flex: 1;">
-            <span style="font-weight:600; display:block; margin-bottom: 4px;">${s.apellido}, ${s.nombre}</span>
-            <span class="badge-faltas">Faltas Acumuladas: ${s.total_faltas || 0}</span>
-          </div>
-          <div id="ctrl_${s.id}">
-            ${state.turno === 'Contraturno' ? `
-              <div class="ct-opts">
-                <label><input type="checkbox" value="Educación Física" class="ct-check" onchange="toggleCardStyle(${s.id})"><span>EF</span></label>
-                <label><input type="checkbox" value="Formación Religiosa" class="ct-check" onchange="toggleCardStyle(${s.id})"><span>FR</span></label>
-                <label><input type="checkbox" value="Informática" class="ct-check" onchange="toggleCardStyle(${s.id})"><span>INF</span></label>
-              </div>
-            ` : `
-              <label class="absent-toggle">
-                <input type="checkbox" value="${state.turno}" class="check-absent" onchange="toggleCardStyle(${s.id})">
-                <div class="slider"></div>
-              </label>
-            `}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function toggleCardStyle(id) {
-      const card = document.getElementById('card_' + id);
-      card.classList.toggle('is-absent', card.querySelectorAll('input:checked').length > 0);
-    }
-
-    // -----------------------------------------------------------
-    // FUNCIÓN CORREGIDA: ENVÍO Y REFRESCO SILENCIOSO (SIN RECARGA)
-    // -----------------------------------------------------------
-    async function confirmarEnvio() {
-      const ausentes = []; 
-      const isContraturno = state.turno === 'Contraturno';
-      const alumnos = DATA.students.filter(s => s.turno == state.turno && s.curso == state.curso);
-      
-      alumnos.forEach(s => {
-        let espaciosMarcados = []; 
-        if (isContraturno) { 
-          const checks = Array.from(document.querySelectorAll(`#ctrl_${s.id} .ct-check:checked`));
-          espaciosMarcados = checks.map(c => c.value); 
-        } else {
-          const check = document.querySelector(`#ctrl_${s.id} .check-absent`);
-          if (check && check.checked) espaciosMarcados.push(check.value);
-        }
+        let estadoInicial = historialEstados[alumno] || "P";
+        if (estadoInicial === "SUSPENDIDO") estadoInicial = "P"; 
         
-        if (espaciosMarcados.length > 0) {
-          ausentes.push({ email: s.email_responsable, nombre: s.apellido + " " + s.nombre, espacios: espaciosMarcados });
-        }
+        aplicarFormatoBoton(botonAsis, estadoInicial);
+        botonAsis.onclick = function() { rotarEstadoAsistencia(botonAsis); };
+
+        fila.appendChild(bloqueDatos);
+        fila.appendChild(botonAsis);
+        planilla.appendChild(fila);
       });
 
-      if (!confirm(`¿Confirmar asistencia? Se registrarán ${ausentes.length} inasistencias en el sistema.`)) return;
-      
-      const btn = document.getElementById('sendBtn');
-      btn.disabled = true;
-      btn.innerText = "Procesando en la Base de Datos...";
-      
-      try {
-        const payload = { ...state, ausentes: ausentes };
-        
-        // Enviamos los datos
-        const response = await fetch(API_URL, { 
-          method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow',
-          body: JSON.stringify({ action: 'enviar', email: state.email, payload: payload }) 
-        });
-        const res = await response.json();
-        
-        if (res.success) { 
-          alert("Éxito. Inasistencias guardadas y correos enviados a las familias."); 
-          
-          btn.innerText = "Actualizando Totales...";
-          
-          // Refresco Silencioso: Volvemos a consultar la API para traer los números actualizados
-          const pass = localStorage.getItem('isl_pass');
-          const refreshReq = await fetch(API_URL, {
-            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow',
-            body: JSON.stringify({ action: 'login', email: state.email, password: pass })
-          });
-          const refreshRes = await refreshReq.json();
-          
-          if(refreshRes.autorizado) {
-             DATA = refreshRes; // Guardamos la nueva lista de alumnos con los totales nuevos
-             const botonActivo = document.querySelector('.course-btn.active');
-             cargarCurso(state.curso, botonActivo); // Recargamos la vista del curso
-          }
-          
-        } else {
-          alert("Error del Servidor: " + res.error);
-        }
-      } catch (e) { 
-        console.error(e);
-        alert("Error de conexión al guardar los datos."); 
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Confirmar Asistencia";
+      document.getElementById('mensaje-inicial').style.display = 'none';
+      document.getElementById('bloque-asistencia-activa').style.display = 'flex';
+    }
+
+    function aplicarFormatoBoton(btn, estado) {
+      btn.setAttribute('data-estado', estado);
+      btn.className = 'btn-ciclo-asistencia';
+
+      if (estado === "P") {
+        btn.classList.add('estado-p');
+        btn.textContent = "P (Presente)";
+      } else if (estado === "A") {
+        btn.classList.add('estado-a');
+        btn.textContent = "A (Ausente)";
+      } else if (estado === "AJ") {
+        btn.classList.add('estado-aj');
+        btn.textContent = "A (Justificada)";
       }
     }
 
-    function resetMain() { 
-      document.getElementById('studentList').innerHTML = ''; 
-      document.getElementById('footer').classList.add('hidden'); 
-      document.getElementById('viewTitle').innerText = 'Bienvenido'; 
+    function rotarEstadoAsistencia(btn) {
+      const estadoActual = btn.getAttribute('data-estado');
+      let proximoEstado = "P";
+
+      if (estadoActual === "P") proximoEstado = "A";
+      else if (estadoActual === "A") proximoEstado = "AJ";
+      else if (estadoActual === "AJ") proximoEstado = "P";
+
+      aplicarFormatoBoton(btn, proximoEstado);
+    }
+
+    function procesarCambioSuspension(marcado) {
+      const banner = document.getElementById('label-suspension');
+      const planilla = document.getElementById('lista-alumnos-planilla');
+
+      if (marcado) {
+        banner.classList.add('activo');
+        planilla.classList.add('linea-verde-total');
+      } else {
+        banner.classList.remove('activo');
+        planilla.classList.remove('linea-verde-total');
+      }
+    }
+
+    function enviarAsistenciaFormulario() {
+      const fecha = document.getElementById('fecha-global').value;
+      const esSuspension = document.getElementById('check-suspension').checked;
+      
+      let mapeoAlumnos = [];
+      document.querySelectorAll('.item-alumno').forEach(fila => {
+        let nombre = fila.querySelector('.nombre-alumno').textContent;
+        let estado = fila.querySelector('.btn-ciclo-asistencia').getAttribute('data-estado');
+        mapeoAlumnos.push({ nombre: nombre, estado: estado });
+      });
+
+      const payload = {
+        fecha: fecha,
+        curso: cursoActivo,
+        materia: materiaActiva,
+        suspension: esSuspension,
+        alumnos: mapeoAlumnos
+      };
+
+      document.getElementById('bloque-asistencia-activa').style.display = 'none';
+      document.getElementById('mensaje-inicial').style.display = 'flex';
+      document.getElementById('mensaje-inicial').innerHTML = '<p>Grabando el parte diario en el archivo central...</p>';
+
+      fetch(API_GOOGLE_URL, {
+        method: 'POST',
+        mode: 'cors',
+        body: JSON.stringify({
+          action: 'guardar_contraturno',
+          email: EMAIL_PRECEPTOR_ACTIVO,
+          payload: payload
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          alert('Asistencias procesadas e impactadas correctamente en Drive.');
+          obtenerDatosServidor(); 
+        } else {
+          alert('Error de procesamiento: ' + res.error);
+          document.getElementById('mensaje-inicial').style.display = 'none';
+          document.getElementById('bloque-asistencia-activa').style.display = 'flex';
+        }
+      })
+      .catch(err => {
+        alert('Fallo crítico al conectar con el servidor.');
+        document.getElementById('mensaje-inicial').style.display = 'none';
+        document.getElementById('bloque-asistencia-activa').style.display = 'flex';
+      });
     }
   </script>
 </body>
