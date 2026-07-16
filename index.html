@@ -46,10 +46,7 @@
     .panel-trabajo { flex: 1; display: flex; flex-direction: column; padding: 35px; overflow-y: auto; }
     
     /* Contenedor Principal de Asistencia (Acomoda los elementos en columna) */
-    #bloque-asistencia-activa {
-      flex-direction: column !important;
-      width: 100%;
-    }
+    #bloque-asistencia-activa { flex-direction: column !important; width: 100%; }
 
     /* Cartel de Suspensión */
     .banner-suspension { background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px 24px; display: flex; align-items: center; gap: 15px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; margin-bottom: 25px; }
@@ -84,29 +81,19 @@
     /* Elementos de Carga y Mensajes Vacíos */
     .pantalla-espera { display: flex; flex: 1; align-items: center; justify-content: center; font-size: 16px; color: #64748b; text-align: center; flex-direction: column; gap: 10px; }
 
-    /* =========================================
-       ADAPTACIÓN PARA CELULARES (MOBILE RESPONSIVE)
-       ========================================= */
     @media (max-width: 768px) {
       .header-institucional { flex-direction: column; height: auto; padding: 15px; gap: 12px; text-align: center; }
       .header-institucional h1 { font-size: 18px; line-height: 1.2; }
       .contenedor-fecha { width: 100%; justify-content: center; }
-      
       .contenedor-aplicacion { flex-direction: column; overflow-y: auto; }
-      
       .panel-navegacion { width: 100%; border-right: none; border-bottom: 2px solid #e2e8f0; padding: 20px 15px; gap: 15px; }
-      
       .panel-trabajo { padding: 15px; overflow-y: visible; }
-      
       .banner-suspension { flex-direction: row !important; align-items: center; text-align: left; padding: 12px 15px; margin-bottom: 15px; }
       .banner-suspension span { font-size: 14px; }
-      
       .contenedor-alumnos { width: 100%; margin-bottom: 20px; }
       .item-alumno { flex-direction: column; align-items: flex-start; gap: 12px; padding: 15px; }
       .datos-alumno-bloque { width: 100%; }
-      
       .btn-ciclo-asistencia { width: 100%; padding: 12px 0; font-size: 14px; }
-      
       .bloque-confirmacion { justify-content: center; }
       .btn-confirmar-total { width: 100%; padding: 16px; }
     }
@@ -116,16 +103,13 @@
 
   <header class="header-institucional">
     <h1>Gestión de Asistencia</h1>
-    
     <div class="contenedor-fecha">
       <input type="date" id="fecha-global" onchange="obtenerDatosServidor()">
     </div>
-    
     <div style="font-size: 14px; font-weight: 600;" id="usuario-badge">Preceptor Contraturno</div>
   </header>
 
   <div class="contenedor-aplicacion">
-    
     <aside class="panel-navegacion">
       <div>
         <div class="titulo-seccion" style="margin-bottom: 8px;">1: Seleccionar Curso</div>
@@ -133,14 +117,14 @@
       </div>
       
       <div style="flex: 1; display: flex; flex-direction: column;">
-        <div class="titulo-seccion">2: Materias Asignadas</div>
+        <div class="titulo-seccion">2: Materias (Selección Múltiple)</div>
         <div id="lista-materias" class="lista-botones-materias"></div>
       </div>
     </aside>
 
     <main id="panel-principal-trabajo" class="panel-trabajo">
       <div id="mensaje-inicial" class="pantalla-espera">
-        <p>Por favor, elija un curso y haga clic sobre la materia correspondiente para desplegar la nómina.</p>
+        <p>Por favor, elija un curso y haga clic sobre las materias correspondientes para desplegar la nómina.</p>
       </div>
 
       <div id="bloque-asistencia-activa" style="display: none;">
@@ -159,19 +143,16 @@
   </div>
 
   <script>
-    // URL DE CONEXIÓN CON GOOGLE DRIVE (¡REEMPLAZAR POR LA TUYA!)
-    const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyi7JMqqAjN9c60IZZoekQK75-lJ3ET8wOlkch7afFz3LJnybAceEfh9fNbTLs8JUaJvQ/exec";
+    // URL DE CONEXIÓN CON GOOGLE DRIVE
+    const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwKldWO1ru5gBzXaAcinaGttXzupO5FZm4b8ZQBfdp8ncx1pkaFXpMiifNbdrd-IEGiAA/exec";
     
-    // Sesión Simulada del Preceptor Logueado (Vercel debe proveer el email del login aquí)
+    // Sesión del Preceptor Logueado
     const EMAIL_PRECEPTOR_ACTIVO = "dcarou@isantalucia.edu.ar"; 
 
-    // Almacenamiento local temporal de datos cruzados
-    let memoriaLocal = {};
+    let cursosDisponibles = {};
     let cursoActivo = "";
-    let materiaActiva = "";
 
     window.onload = function() {
-      // Forzar fecha de hoy de manera local al iniciar
       const fechaHoy = new Date();
       const timezoneOffset = fechaHoy.getTimezoneOffset() * 60000;
       const fechaLocal = new Date(fechaHoy.getTime() - timezoneOffset);
@@ -181,40 +162,42 @@
       obtenerDatosServidor();
     };
 
+    function apiPost(payload) {
+      return fetch(API_GOOGLE_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      }).then(res => res.json());
+    }
+
     function obtenerDatosServidor() {
-      const fechaSeleccionada = document.getElementById('fecha-global').value;
-      if (!fechaSeleccionada) return;
+      const fecha = document.getElementById('fecha-global').value;
+      if (!fecha) return;
 
       document.getElementById('bloque-asistencia-activa').style.display = 'none';
       document.getElementById('mensaje-inicial').style.display = 'flex';
       document.getElementById('mensaje-inicial').innerHTML = '<p>Sincronizando grilla horaria con Google Drive...</p>';
 
-      fetch(API_GOOGLE_URL, {
-        method: 'POST',
-        mode: 'cors',
-        body: JSON.stringify({
-          action: 'obtener_datos_contraturno',
-          fecha: fechaSeleccionada,
-          email: EMAIL_PRECEPTOR_ACTIVO
+      apiPost({ action: 'iniciar', email: EMAIL_PRECEPTOR_ACTIVO, fecha: fecha })
+        .then(res => {
+          if (res.exito) {
+            cursosDisponibles = res.cursos;
+            construirSelectorCursos();
+            document.getElementById('mensaje-inicial').innerHTML = '<p>Por favor, elija un curso y seleccione las materias correspondientes.</p>';
+          } else {
+            document.getElementById('mensaje-inicial').innerHTML = `<p style="color:red;">${res.error || 'Error de sincronización'}</p>`;
+          }
         })
-      })
-      .then(res => res.json())
-      .then(res => {
-        memoriaLocal = res;
-        construirSelectorCursos();
-        document.getElementById('mensaje-inicial').innerHTML = '<p>Por favor, elija un curso y haga clic sobre la materia correspondiente para desplegar la nómina.</p>';
-      })
-      .catch(err => {
-        document.getElementById('mensaje-inicial').innerHTML = '<p style="color:red;">Error de sincronización con la base de datos central.</p>';
-      });
+        .catch(() => {
+          document.getElementById('mensaje-inicial').innerHTML = '<p style="color:red;">Error de conexión con el servidor.</p>';
+        });
     }
 
     function construirSelectorCursos() {
       const select = document.getElementById('select-curso');
       select.innerHTML = '<option value="">Elegir...</option>';
       
-      const cursos = Object.keys(memoriaLocal.estructuraCursos || {});
-      cursos.forEach(c => {
+      Object.keys(cursosDisponibles).forEach(c => {
         let opt = document.createElement('option');
         opt.value = c;
         opt.textContent = c;
@@ -223,50 +206,61 @@
       
       document.getElementById('lista-materias').innerHTML = '';
       cursoActivo = "";
-      materiaActiva = "";
     }
 
     function cambiarCurso() {
       cursoActivo = document.getElementById('select-curso').value;
       const contenedorMaterias = document.getElementById('lista-materias');
       contenedorMaterias.innerHTML = '';
+      
       document.getElementById('bloque-asistencia-activa').style.display = 'none';
       document.getElementById('mensaje-inicial').style.display = 'flex';
 
       if (!cursoActivo) return;
 
-      const materias = memoriaLocal.estructuraCursos[cursoActivo] || [];
+      const materias = cursosDisponibles[cursoActivo] || [];
       materias.forEach(mat => {
         let btn = document.createElement('button');
         btn.className = 'btn-materia';
         btn.textContent = mat;
         btn.onclick = function() {
-          document.querySelectorAll('.btn-materia').forEach(b => b.classList.remove('seleccionada'));
-          btn.classList.add('seleccionada');
-          desplegarNominaEstudiantes(mat);
+          btn.classList.toggle('seleccionada');
+          evaluarDespliegueNomina();
         };
         contenedorMaterias.appendChild(btn);
       });
     }
 
-    function desplegarNominaEstudiantes(materia) {
-      materiaActiva = materia;
+    function evaluarDespliegueNomina() {
+      const seleccionadas = document.querySelectorAll('.btn-materia.seleccionada').length;
+      
+      if (seleccionadas > 0) {
+        if (document.getElementById('bloque-asistencia-activa').style.display === 'none') {
+          cargarNominaEstudiantes();
+        }
+      } else {
+        document.getElementById('bloque-asistencia-activa').style.display = 'none';
+        document.getElementById('mensaje-inicial').style.display = 'flex';
+      }
+    }
+
+    function cargarNominaEstudiantes() {
+      document.getElementById('mensaje-inicial').innerHTML = '<p>Cargando lista de alumnos...</p>';
+      document.getElementById('mensaje-inicial').style.display = 'flex';
+
+      apiPost({ action: 'getAlumnos', curso: cursoActivo })
+        .then(res => {
+          renderizarPlanilla(res.alumnos);
+        });
+    }
+
+    function renderizarPlanilla(alumnos) {
       const planilla = document.getElementById('lista-alumnos-planilla');
       planilla.innerHTML = '';
 
-      const alumnos = memoriaLocal.alumnosPorCurso[cursoActivo] || [];
-      const claveIdentificacion = cursoActivo + "||" + materiaActiva;
-      const historialEstados = memoriaLocal.historialGuardado[claveIdentificacion] || {};
-      const tieneSuspensionPrevia = memoriaLocal.clasesSuspendidas[claveIdentificacion] || false;
-
-      // Sincronizar banner e interruptor de suspensión
       const chkSuspension = document.getElementById('check-suspension');
-      chkSuspension.checked = tieneSuspensionPrevia;
-      procesarCambioSuspension(tieneSuspensionPrevia);
-
-      // Capturar fecha actual para mostrar acumulador del mes corriente
-      const mesesNombres = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-      const mesNombreActivo = mesesNombres[new Date(document.getElementById('fecha-global').value).getMonth()];
+      chkSuspension.checked = false;
+      procesarCambioSuspension(false);
 
       alumnos.forEach(alumno => {
         let fila = document.createElement('div');
@@ -279,13 +273,9 @@
         spanNombre.className = 'nombre-alumno';
         spanNombre.textContent = alumno;
 
-        // Mostrar sumatoria mensual calculada en Drive
         let spanAcumulador = document.createElement('span');
         spanAcumulador.className = 'acumulador-mensual';
-        let resAlum = (memoriaLocal.resumenMensual[alumno] && memoriaLocal.resumenMensual[alumno][mesNombreActivo]) 
-                      ? memoriaLocal.resumenMensual[alumno][mesNombreActivo] 
-                      : { P: 0, A: 0, AJ: 0 };
-        spanAcumulador.textContent = `Totales Mensuales (${mesNombreActivo.toUpperCase()}): Presentes: ${resAlum.P} | Ausentes: ${resAlum.A} | Justificadas: ${resAlum.AJ}`;
+        spanAcumulador.textContent = `Registro en curso para bloque de contraturno`;
 
         bloqueDatos.appendChild(spanNombre);
         bloqueDatos.appendChild(spanAcumulador);
@@ -293,10 +283,7 @@
         let botonAsis = document.createElement('button');
         botonAsis.className = 'btn-ciclo-asistencia';
         
-        let estadoInicial = historialEstados[alumno] || "P";
-        if (estadoInicial === "SUSPENDIDO") estadoInicial = "P"; 
-        
-        aplicarFormatoBoton(botonAsis, estadoInicial);
+        aplicarFormatoBoton(botonAsis, "P");
         botonAsis.onclick = function() { rotarEstadoAsistencia(botonAsis); };
 
         fila.appendChild(bloqueDatos);
@@ -320,25 +307,22 @@
         btn.textContent = "A (Ausente)";
       } else if (estado === "AJ") {
         btn.classList.add('estado-aj');
-        btn.textContent = "A (Justificada)";
+        btn.textContent = "AJ (Justificada)";
       }
     }
 
     function rotarEstadoAsistencia(btn) {
       const estadoActual = btn.getAttribute('data-estado');
       let proximoEstado = "P";
-
       if (estadoActual === "P") proximoEstado = "A";
       else if (estadoActual === "A") proximoEstado = "AJ";
       else if (estadoActual === "AJ") proximoEstado = "P";
-
       aplicarFormatoBoton(btn, proximoEstado);
     }
 
     function procesarCambioSuspension(marcado) {
       const banner = document.getElementById('label-suspension');
       const planilla = document.getElementById('lista-alumnos-planilla');
-
       if (marcado) {
         banner.classList.add('activo');
         planilla.classList.add('linea-verde-total');
@@ -349,53 +333,36 @@
     }
 
     function enviarAsistenciaFormulario() {
-      const fecha = document.getElementById('fecha-global').value;
-      const esSuspension = document.getElementById('check-suspension').checked;
+      const materiasSeleccionadas = Array.from(document.querySelectorAll('.btn-materia.seleccionada')).map(b => b.textContent);
       
-      let mapeoAlumnos = [];
-      document.querySelectorAll('.item-alumno').forEach(fila => {
-        let nombre = fila.querySelector('.nombre-alumno').textContent;
-        let estado = fila.querySelector('.btn-ciclo-asistencia').getAttribute('data-estado');
-        mapeoAlumnos.push({ nombre: nombre, estado: estado });
-      });
-
       const payload = {
-        fecha: fecha,
+        fecha: document.getElementById('fecha-global').value,
         curso: cursoActivo,
-        materia: materiaActiva,
-        suspension: esSuspension,
-        alumnos: mapeoAlumnos
+        materias: materiasSeleccionadas,
+        suspension: document.getElementById('check-suspension').checked,
+        alumnos: Array.from(document.querySelectorAll('.item-alumno')).map(fila => ({
+          nombre: fila.querySelector('.nombre-alumno').textContent,
+          estado: fila.querySelector('.btn-ciclo-asistencia').getAttribute('data-estado')
+        }))
       };
 
       document.getElementById('bloque-asistencia-activa').style.display = 'none';
       document.getElementById('mensaje-inicial').style.display = 'flex';
-      document.getElementById('mensaje-inicial').innerHTML = '<p>Grabando el parte diario en el archivo central...</p>';
+      document.getElementById('mensaje-inicial').innerHTML = '<p>Grabando el parte diario...</p>';
 
-      fetch(API_GOOGLE_URL, {
-        method: 'POST',
-        mode: 'cors',
-        body: JSON.stringify({
-          action: 'guardar_contraturno',
-          email: EMAIL_PRECEPTOR_ACTIVO,
-          payload: payload
+      apiPost({ action: 'guardar', payload: payload })
+        .then(res => {
+          if (res.success) {
+            alert('Asistencias procesadas e impactadas correctamente en Drive.');
+            document.getElementById('mensaje-inicial').innerHTML = '<p>Registro exitoso. Puede seleccionar otro curso.</p>';
+            obtenerDatosServidor(); 
+          }
         })
-      })
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) {
-          alert('Asistencias procesadas e impactadas correctamente en Drive.');
-          obtenerDatosServidor(); 
-        } else {
-          alert('Error de procesamiento: ' + res.error);
+        .catch(() => {
+          alert('Fallo crítico al conectar con el servidor.');
           document.getElementById('mensaje-inicial').style.display = 'none';
           document.getElementById('bloque-asistencia-activa').style.display = 'flex';
-        }
-      })
-      .catch(err => {
-        alert('Fallo crítico al conectar con el servidor.');
-        document.getElementById('mensaje-inicial').style.display = 'none';
-        document.getElementById('bloque-asistencia-activa').style.display = 'flex';
-      });
+        });
     }
   </script>
 </body>
