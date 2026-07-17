@@ -265,45 +265,31 @@
         });
     }
 
-    function renderizarPlanilla(alumnos) {
+   function renderizarPlanilla(alumnos) {
       const planilla = document.getElementById('lista-alumnos-planilla');
       planilla.innerHTML = '';
-
-      const chkSuspension = document.getElementById('check-suspension');
-      chkSuspension.checked = false;
-      procesarCambioSuspension(false);
+      document.getElementById('check-suspension').checked = false;
 
       alumnos.forEach(alumno => {
         let fila = document.createElement('div');
         fila.className = 'item-alumno';
-
         let bloqueDatos = document.createElement('div');
         bloqueDatos.className = 'datos-alumno-bloque';
-
         let spanNombre = document.createElement('span');
         spanNombre.className = 'nombre-alumno';
-        
-        if (typeof alumno === 'string') {
-          spanNombre.textContent = alumno;
-        } else if (alumno !== null && typeof alumno === 'object') {
-          spanNombre.textContent = alumno.apellido_y_nombre || alumno.nombreCompleto || alumno.apellido || alumno.nombre || "Celda vacía en la planilla";
-        } else {
-          spanNombre.textContent = "Error de lectura";
-        }
-
+        spanNombre.textContent = alumno; // Ya no agregamos el subtítulo
         bloqueDatos.appendChild(spanNombre);
 
         let botonAsis = document.createElement('button');
-        botonAsis.className = 'btn-ciclo-asistencia';
-        
-        aplicarFormatoBoton(botonAsis, "P");
+        botonAsis.className = 'btn-ciclo-asistencia estado-p';
+        botonAsis.textContent = "P (Presente)";
+        botonAsis.setAttribute('data-estado', 'P');
         botonAsis.onclick = function() { rotarEstadoAsistencia(botonAsis); };
 
         fila.appendChild(bloqueDatos);
         fila.appendChild(botonAsis);
         planilla.appendChild(fila);
       });
-
       document.getElementById('mensaje-inicial').style.display = 'none';
       document.getElementById('bloque-asistencia-activa').style.display = 'flex';
     }
