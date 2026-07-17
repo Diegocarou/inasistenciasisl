@@ -45,7 +45,7 @@
     /* Área de Trabajo de la Nómina */
     .panel-trabajo { flex: 1; display: flex; flex-direction: column; padding: 35px; overflow-y: auto; }
     
-    /* Contenedor Principal de Asistencia (Acomoda los elementos en columna) */
+    /* Contenedor Principal de Asistencia */
     #bloque-asistencia-activa { flex-direction: column !important; width: 100%; }
 
     /* Cartel de Suspensión */
@@ -106,7 +106,7 @@
     <div class="contenedor-fecha">
       <input type="date" id="fecha-global" onchange="obtenerDatosServidor()">
     </div>
-    <div style="font-size: 14px; font-weight: 600;" id="usuario-badge">Preceptor Contraturno</div>
+    <div style="font-size: 14px; font-weight: 600;" id="usuario-badge">Administrador Activo</div>
   </header>
 
   <div class="contenedor-aplicacion">
@@ -143,10 +143,12 @@
   </div>
 
   <script>
-    // URL DE CONEXIÓN CON GOOGLE DRIVE
-    const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwoefBg4fecrT1mhyYcEdnlVTb9zdR0TjTK05rU_gcgfmBWEI9c1Uw6BtB55cMddX64Og/exec";
+    // ====================================================================
+    // PEGAR ACÁ LA NUEVA URL GENERADA EN APPS SCRIPT (NUEVA IMPLEMENTACIÓN)
+    // ====================================================================
+    const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwoefBg4fecrT1mhyYcEdnlVTb9zdR0TjTK05rU_gcgfmBWEI9c1Uw6BtB55cMddX64Og/exec"; 
     
-    // Sesión del Preceptor Logueado
+    // Sesión Maestra (Tu correo accede a toda la info)
     const EMAIL_PRECEPTOR_ACTIVO = "dcarou@isantalucia.edu.ar"; 
 
     let cursosDisponibles = {};
@@ -189,7 +191,7 @@
           }
         })
         .catch(() => {
-          document.getElementById('mensaje-inicial').innerHTML = '<p style="color:red;">Error de conexión con el servidor.</p>';
+          document.getElementById('mensaje-inicial').innerHTML = '<p style="color:red;">Error de conexión con el servidor. Verifique la URL de la API.</p>';
         });
     }
 
@@ -271,7 +273,8 @@
 
         let spanNombre = document.createElement('span');
         spanNombre.className = 'nombre-alumno';
-        spanNombre.textContent = alumno.apellido_y_nombre;
+        // El servidor envía ahora una cadena de texto perfecta (Ej: "García, Juan")
+        spanNombre.textContent = alumno; 
 
         let spanAcumulador = document.createElement('span');
         spanAcumulador.className = 'acumulador-mensual';
@@ -356,6 +359,10 @@
             alert('Asistencias procesadas e impactadas correctamente en Drive.');
             document.getElementById('mensaje-inicial').innerHTML = '<p>Registro exitoso. Puede seleccionar otro curso.</p>';
             obtenerDatosServidor(); 
+          } else {
+            alert('Error del servidor: ' + res.error);
+            document.getElementById('mensaje-inicial').style.display = 'none';
+            document.getElementById('bloque-asistencia-activa').style.display = 'flex';
           }
         })
         .catch(() => {
