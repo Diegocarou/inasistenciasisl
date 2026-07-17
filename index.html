@@ -256,7 +256,7 @@
         });
     }
 
-    function renderizarPlanilla(alumnos) {
+   function renderizarPlanilla(alumnos) {
       const planilla = document.getElementById('lista-alumnos-planilla');
       planilla.innerHTML = '';
 
@@ -273,8 +273,16 @@
 
         let spanNombre = document.createElement('span');
         spanNombre.className = 'nombre-alumno';
-        // El servidor envía ahora una cadena de texto perfecta (Ej: "García, Juan")
-        spanNombre.textContent = alumno; 
+        
+        // --- CÓDIGO BLINDADO PARA FORZAR LA LECTURA DEL NOMBRE ---
+        if (typeof alumno === 'string') {
+          spanNombre.textContent = alumno;
+        } else if (alumno !== null && typeof alumno === 'object') {
+          spanNombre.textContent = alumno.apellido_y_nombre || alumno.nombreCompleto || alumno.apellido || alumno.nombre || "Celda vacía en la planilla";
+        } else {
+          spanNombre.textContent = "Error de lectura";
+        }
+        // ---------------------------------------------------------
 
         let spanAcumulador = document.createElement('span');
         spanAcumulador.className = 'acumulador-mensual';
@@ -297,6 +305,8 @@
       document.getElementById('mensaje-inicial').style.display = 'none';
       document.getElementById('bloque-asistencia-activa').style.display = 'flex';
     }
+
+  
 
     function aplicarFormatoBoton(btn, estado) {
       btn.setAttribute('data-estado', estado);
