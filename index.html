@@ -41,6 +41,17 @@
     .btn-materia { width: 100%; padding: 14px; text-align: left; border: none; background: #f1f5f9; border-radius: 6px; color: var(--texto-oscuro); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-materia:hover { background: #e2e8f0; }
     .btn-materia.seleccionada { background: var(--oro-acento); color: white; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    
+    /* Estilo para el botón de materia confirmada */
+    .btn-materia.confirmada { 
+      background-color: var(--p-verde); 
+      color: white; 
+      border-color: var(--p-verde);
+    }
+    .btn-materia.confirmada::after {
+      content: " ✓";
+      font-weight: bold;
+    }
 
     /* Área de Trabajo de la Nómina */
     .panel-trabajo { flex: 1; display: flex; flex-direction: column; padding: 35px; overflow-y: auto; }
@@ -60,7 +71,6 @@
     
     .datos-alumno-bloque { display: flex; flex-direction: column; gap: 4px; }
     .nombre-alumno { font-size: 16px; font-weight: 600; color: #0f172a; }
-    .acumulador-mensual { font-size: 12px; color: #64748b; font-weight: 500; }
 
     /* Botón Rotativo de Estados */
     .btn-ciclo-asistencia { width: 160px; padding: 10px 0; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; text-align: center; color: white; cursor: pointer; text-transform: uppercase; transition: transform 0.1s; flex-shrink: 0; }
@@ -148,7 +158,6 @@
     // ====================================================================
     const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwoefBg4fecrT1mhyYcEdnlVTb9zdR0TjTK05rU_gcgfmBWEI9c1Uw6BtB55cMddX64Og/exec"; 
     
-    // Sesión Maestra (Tu correo accede a toda la info)
     const EMAIL_PRECEPTOR_ACTIVO = "dcarou@isantalucia.edu.ar"; 
 
     let cursosDisponibles = {};
@@ -256,7 +265,7 @@
         });
     }
 
-   function renderizarPlanilla(alumnos) {
+    function renderizarPlanilla(alumnos) {
       const planilla = document.getElementById('lista-alumnos-planilla');
       planilla.innerHTML = '';
 
@@ -274,7 +283,6 @@
         let spanNombre = document.createElement('span');
         spanNombre.className = 'nombre-alumno';
         
-        // --- CÓDIGO BLINDADO PARA FORZAR LA LECTURA DEL NOMBRE ---
         if (typeof alumno === 'string') {
           spanNombre.textContent = alumno;
         } else if (alumno !== null && typeof alumno === 'object') {
@@ -282,14 +290,8 @@
         } else {
           spanNombre.textContent = "Error de lectura";
         }
-        // ---------------------------------------------------------
-
-        let spanAcumulador = document.createElement('span');
-        spanAcumulador.className = 'acumulador-mensual';
-        spanAcumulador.textContent = `Registro en curso para bloque de contraturno`;
 
         bloqueDatos.appendChild(spanNombre);
-        bloqueDatos.appendChild(spanAcumulador);
 
         let botonAsis = document.createElement('button');
         botonAsis.className = 'btn-ciclo-asistencia';
@@ -305,8 +307,6 @@
       document.getElementById('mensaje-inicial').style.display = 'none';
       document.getElementById('bloque-asistencia-activa').style.display = 'flex';
     }
-
-  
 
     function aplicarFormatoBoton(btn, estado) {
       btn.setAttribute('data-estado', estado);
@@ -367,8 +367,17 @@
         .then(res => {
           if (res.success) {
             alert('Asistencias procesadas e impactadas correctamente en Drive.');
-            document.getElementById('mensaje-inicial').innerHTML = '<p>Registro exitoso. Puede seleccionar otro curso.</p>';
-            obtenerDatosServidor(); 
+            document.getElementById('mensaje-inicial').innerHTML = '<p>Registro exitoso. Puede seleccionar otra materia u otro curso.</p>';
+            
+            const botonesMaterias = document.querySelectorAll('.btn-materia.seleccionada');
+            botonesMaterias.forEach(btn => {
+              btn.classList.remove('seleccionada'); 
+              btn.classList.add('confirmada');      
+            });
+
+            document.getElementById('bloque-asistencia-activa').style.display = 'none';
+            document.getElementById('mensaje-inicial').style.display = 'flex';
+            
           } else {
             alert('Error del servidor: ' + res.error);
             document.getElementById('mensaje-inicial').style.display = 'none';
