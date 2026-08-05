@@ -156,9 +156,14 @@
 
       <!-- PESTAÑA 2 -->
       <div id="seccion-dashboard" style="display: none; width: 100%;">
-        <div class="d-flex justify-content-between align-items-center mb-3" style="margin-bottom: 20px;">
-          <h3>Inasistencias por Estudiante</h3>
-          <select id="select-curso-dashboard" class="select-curso" style="width: 200px;" onchange="cargarMatrizMensual()"></select>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+          <h3 style="margin: 0;">Inasistencias por Estudiante</h3>
+          <div style="display: flex; gap: 10px;">
+            <select id="select-curso-dashboard" class="select-curso" style="width: auto; min-width: 140px;" onchange="actualizarMateriasDashboard()"></select>
+            <select id="select-materia-dashboard" class="select-curso" style="width: auto; min-width: 200px;" onchange="cargarMatrizMensual()">
+              <option value="">Todas las Materias</option>
+            </select>
+          </div>
         </div>
 
         <div id="tabla-matriz-contenedor">
@@ -170,6 +175,7 @@
   </div>
 
   <script>
+    // IMPORTANTE: REEMPLAZA ESTA URL CON TU NUEVA URL DE DESPLIEGUE DESPUES DE ACTUALIZAR codigo.gs
     const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwYnL1lgVrKbevgIyvGOGbuuolMpR2HSzOG_ivYTwi7yoeZ3-0qfgK9Hm0nxOb7t5jHHg/exec"; 
     
     let emailActivo = localStorage.getItem('preceptorEmail') || "";
@@ -258,7 +264,6 @@
         document.getElementById('box-fecha-mensual').style.display = 'flex';
         
         poblarSelectorCursosDashboard();
-        cargarMatrizMensual();
       }
     }
 
@@ -437,20 +442,47 @@
         opt.textContent = c;
         select.appendChild(opt);
       });
+      actualizarMateriasDashboard(); 
+    }
+
+    function actualizarMateriasDashboard() {
+      const curso = document.getElementById('select-curso-dashboard').value;
+      const selectMateria = document.getElementById('select-materia-dashboard');
+      
+      selectMateria.innerHTML = '<option value="">Todas las Materias</option>';
+      let materiasParaMostrar = new Set();
+      
+      if (curso && cursosDisponibles[curso]) {
+        cursosDisponibles[curso].forEach(m => materiasParaMostrar.add(m));
+      } else {
+        Object.values(cursosDisponibles).forEach(materias => {
+          materias.forEach(m => materiasParaMostrar.add(m));
+        });
+      }
+      
+      Array.from(materiasParaMostrar).sort().forEach(mat => {
+        let opt = document.createElement('option');
+        opt.value = mat;
+        opt.textContent = mat;
+        selectMateria.appendChild(opt);
+      });
+      
+      cargarMatrizMensual();
     }
 
     function cargarMatrizMensual() {
       const mesAnio = document.getElementById('mes-global').value;
       const curso = document.getElementById('select-curso-dashboard').value;
+      const materia = document.getElementById('select-materia-dashboard').value; 
       const contenedor = document.getElementById('tabla-matriz-contenedor');
 
-      contenedor.innerHTML = '<p class="text-muted">Cargando inasistencias del mes...</p>';
+      contenedor.innerHTML = '<p class="text-muted">Cargando inasistencias...</p>';
 
-      apiPost({ action: 'getMatrizMensual', email: emailActivo, mesAnio: mesAnio, curso: curso })
+      apiPost({ action: 'getMatrizMensual', email: emailActivo, mesAnio: mesAnio, curso: curso, materia: materia })
         .then(res => {
           if (res && res.exito && res.matriz) {
             if (res.matriz.length === 0) {
-              contenedor.innerHTML = '<div class="alert alert-info" style="background:#e0f2fe; color:#0369a1; padding:15px; border-radius:6px;">No se registraron inasistencias en el mes seleccionado.</div>';
+              contenedor.innerHTML = '<div class="alert alert-info" style="background:#e0f2fe; color:#0369a1; padding:15px; border-radius:6px;">No se registraron inasistencias.</div>';
               return;
             }
 
@@ -484,7 +516,7 @@
             html += '</tbody></table>';
             contenedor.innerHTML = html;
           } else {
-            contenedor.innerHTML = '<div class="alert alert-danger" style="background:#fee2e2; color:#991b1b; padding:15px; border-radius:6px;">Error al cargar la matriz mensual.</div>';
+            contenedor.innerHTML = '<div class="alert alert-danger" style="background:#fee2e2; color:#991b1b; padding:15px; border-radius:6px;">Error al cargar la matriz.</div>';
           }
         });
     }
