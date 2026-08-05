@@ -179,7 +179,8 @@
     const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwYnL1lgVrKbevgIyvGOGbuuolMpR2HSzOG_ivYTwi7yoeZ3-0qfgK9Hm0nxOb7t5jHHg/exec"; 
     
     let emailActivo = localStorage.getItem('preceptorEmail') || "";
-    let cursosDisponibles = {};
+    let cursosDisponibles = {}; // Usado para Toma de Asistencia Diaria
+    let cursosTotalesDisponibles = {}; // Usado para el Dashboard Histórico
     let cursoActivo = "";
 
     window.onload = function() {
@@ -279,6 +280,7 @@
         .then(res => {
           if (res.exito) {
             cursosDisponibles = res.cursos;
+            cursosTotalesDisponibles = res.cursosTotales || {}; // Se recibe la lista total
             construirSelectorCursos();
             document.getElementById('mensaje-inicial').innerHTML = '<p>Elija un curso y seleccione las materias correspondientes.</p>';
           } else {
@@ -291,7 +293,12 @@
       const select = document.getElementById('select-curso');
       select.innerHTML = '<option value="">Elegir...</option>';
       
-      Object.keys(cursosDisponibles).forEach(c => {
+      // Ordena los cursos disponibles para el día de hoy
+      const cursosHoyOrdenados = Object.keys(cursosDisponibles).sort((a, b) => {
+        return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
+      cursosHoyOrdenados.forEach(c => {
         let opt = document.createElement('option');
         opt.value = c;
         opt.textContent = c;
@@ -436,7 +443,13 @@
     function poblarSelectorCursosDashboard() {
       const select = document.getElementById('select-curso-dashboard');
       select.innerHTML = '<option value="">Todos los Cursos</option>';
-      Object.keys(cursosDisponibles).forEach(c => {
+      
+      // Ordena alfanuméricamente todos los cursos globales (1A, 1B, 2A, 10A, etc.)
+      const cursosOrdenados = Object.keys(cursosTotalesDisponibles).sort((a, b) => {
+        return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
+      cursosOrdenados.forEach(c => {
         let opt = document.createElement('option');
         opt.value = c;
         opt.textContent = c;
@@ -452,10 +465,11 @@
       selectMateria.innerHTML = '<option value="">Todas las Materias</option>';
       let materiasParaMostrar = new Set();
       
-      if (curso && cursosDisponibles[curso]) {
-        cursosDisponibles[curso].forEach(m => materiasParaMostrar.add(m));
+      // Utilizamos el objeto histórico para no depender del día seleccionado
+      if (curso && cursosTotalesDisponibles[curso]) {
+        cursosTotalesDisponibles[curso].forEach(m => materiasParaMostrar.add(m));
       } else {
-        Object.values(cursosDisponibles).forEach(materias => {
+        Object.values(cursosTotalesDisponibles).forEach(materias => {
           materias.forEach(m => materiasParaMostrar.add(m));
         });
       }
