@@ -347,7 +347,11 @@
       document.getElementById('mensaje-inicial').innerHTML = '<p>Cargando lista de alumnos...</p>';
       document.getElementById('mensaje-inicial').style.display = 'flex';
 
-      apiPost({ action: 'getAlumnos', curso: cursoActivo })
+      const materiasSeleccionadas = Array.from(document.querySelectorAll('.btn-materia.seleccionada'))
+        .map(b => b.textContent);
+      const materiaPrincipal = materiasSeleccionadas.length > 0 ? materiasSeleccionadas[0] : "";
+
+      apiPost({ action: 'getAlumnos', curso: cursoActivo, materia: materiaPrincipal })
         .then(res => {
           renderizarPlanilla(res.alumnos);
         });
