@@ -11,6 +11,7 @@
       --bg-gris: #f4f6f9;
       --p-verde: #2ecc71;
       --a-rojo: #e74c3c;
+      --pt-ambar: #f39c12;
       --aj-verde-oscuro: #27ae60;
       --texto-oscuro: #1e293b;
     }
@@ -50,21 +51,33 @@
     .btn-materia { width: 100%; padding: 14px; text-align: left; border: none; background: #f1f5f9; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-materia.seleccionada { background: var(--oro-acento); color: white; }
     .btn-materia.confirmada { background-color: var(--p-verde); color: white; }
+    .btn-materia.confirmada.seleccionada { background: var(--oro-acento); outline: 3px solid var(--p-verde); }
 
     .panel-trabajo { flex: 1; display: flex; flex-direction: column; padding: 30px; overflow-y: auto; }
     #bloque-asistencia-activa { flex-direction: column !important; width: 100%; }
+
+    .banner-edicion { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 12px; display: none; }
 
     .banner-suspension { background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; margin-bottom: 20px; cursor: pointer; }
     .banner-suspension.activo { border-color: var(--p-verde); background: #f0fdf4; color: #166534; }
 
     .contenedor-alumnos { background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; margin-bottom: 20px; width: 100%; }
-    .item-alumno { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; border-bottom: 1px solid #f1f5f9; }
+    .item-alumno { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; border-bottom: 1px solid #f1f5f9; gap: 15px; }
     .nombre-alumno { font-size: 15px; font-weight: 600; }
 
-    .btn-ciclo-asistencia { width: 150px; padding: 10px 0; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; color: white; cursor: pointer; text-transform: uppercase; }
+    .controles-asistencia { display: flex; align-items: center; gap: 10px; }
+
+    .btn-ciclo-asistencia { width: 160px; padding: 10px 0; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; color: white; cursor: pointer; text-transform: uppercase; transition: background 0.15s; }
     .estado-p { background-color: var(--p-verde); }
     .estado-a { background-color: var(--a-rojo); }
+    .estado-pt { background-color: var(--pt-ambar); }
     .estado-aj { background-color: var(--aj-verde-oscuro); border: 2px solid var(--azul-primario); }
+
+    /* Casilla de llegada tarde al lado del ausente */
+    .label-tarde { display: none; align-items: center; gap: 6px; background: #fffbeb; border: 1px solid #fde68a; color: #b45309; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; user-select: none; }
+    .label-tarde.visible { display: inline-flex; }
+    .label-tarde.activo { background: #fef3c7; border-color: var(--pt-ambar); color: #92400e; }
+    .label-tarde input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--pt-ambar); }
 
     .btn-confirmar-total { background-color: var(--azul-primario); color: white; border: none; padding: 14px 35px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
     .pantalla-espera { display: flex; flex: 1; align-items: center; justify-content: center; font-size: 15px; color: #64748b; text-align: center; flex-direction: column; gap: 10px; }
@@ -80,7 +93,8 @@
       .panel-navegacion { width: 100%; border-right: none; }
       .panel-trabajo { padding: 15px; }
       .item-alumno { flex-direction: column; align-items: flex-start; gap: 10px; }
-      .btn-ciclo-asistencia { width: 100%; }
+      .controles-asistencia { width: 100%; justify-content: space-between; }
+      .btn-ciclo-asistencia { flex: 1; }
     }
   </style>
 </head>
@@ -141,6 +155,10 @@
         </div>
 
         <div id="bloque-asistencia-activa" style="display: none;">
+          <div id="aviso-edicion" class="banner-edicion">
+            ℹ️ Este parte ya tiene registros cargados en la fecha seleccionada. Puede corregir ausentes, marcar llegadas tarde y volver a confirmar para actualizar.
+          </div>
+
           <label id="label-suspension" class="banner-suspension" for="check-suspension">
             <input type="checkbox" id="check-suspension" onchange="procesarCambioSuspension(this.checked)">
             <span>Marcar este bloque horario como SUSPENDIDO (No computará ausencias)</span>
@@ -149,7 +167,7 @@
           <div id="lista-alumnos-planilla" class="contenedor-alumnos"></div>
 
           <div class="bloque-confirmacion">
-            <button class="btn-confirmar-total" onclick="enviarAsistenciaFormulario()">Confirmar Asistencia</button>
+            <button id="btn-confirmar" class="btn-confirmar-total" onclick="enviarAsistenciaFormulario()">Confirmar Asistencia</button>
           </div>
         </div>
       </div>
@@ -179,8 +197,9 @@
     const API_GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwYnL1lgVrKbevgIyvGOGbuuolMpR2HSzOG_ivYTwi7yoeZ3-0qfgK9Hm0nxOb7t5jHHg/exec"; 
     
     let emailActivo = localStorage.getItem('preceptorEmail') || "";
-    let cursosDisponibles = {}; // Usado para Toma de Asistencia Diaria
-    let cursosTotalesDisponibles = {}; // Usado para el Dashboard Histórico
+    let cursosDisponibles = {}; 
+    let cursosTotalesDisponibles = {}; 
+    let materiasConfirmadasHoy = {}; 
     let cursoActivo = "";
 
     window.onload = function() {
@@ -228,7 +247,7 @@
             errBox.style.display = 'block';
           }
         })
-        .catch(err => {
+        .catch(() => {
           errBox.innerText = "Error de conexión con el servidor. Verifique la configuración del despliegue en Apps Script.";
           errBox.style.display = 'block';
         });
@@ -280,7 +299,8 @@
         .then(res => {
           if (res.exito) {
             cursosDisponibles = res.cursos;
-            cursosTotalesDisponibles = res.cursosTotales || {}; // Se recibe la lista total
+            cursosTotalesDisponibles = res.cursosTotales || {};
+            materiasConfirmadasHoy = res.materiasConfirmadas || {};
             construirSelectorCursos();
             document.getElementById('mensaje-inicial').innerHTML = '<p>Elija un curso y seleccione las materias correspondientes.</p>';
           } else {
@@ -293,7 +313,6 @@
       const select = document.getElementById('select-curso');
       select.innerHTML = '<option value="">Elegir...</option>';
       
-      // Ordena los cursos disponibles para el día de hoy
       const cursosHoyOrdenados = Object.keys(cursosDisponibles).sort((a, b) => {
         return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
       });
@@ -319,9 +338,14 @@
       if (!cursoActivo) return;
 
       const materias = cursosDisponibles[cursoActivo] || [];
+      const confirmadasDelCurso = materiasConfirmadasHoy[cursoActivo] || [];
+
       materias.forEach(mat => {
         let btn = document.createElement('button');
         btn.className = 'btn-materia';
+        if (confirmadasDelCurso.indexOf(mat) !== -1) {
+          btn.classList.add('confirmada');
+        }
         btn.textContent = mat;
         btn.onclick = function() {
           btn.classList.toggle('seleccionada');
@@ -334,9 +358,7 @@
     function evaluarDespliegueNomina() {
       const seleccionadas = document.querySelectorAll('.btn-materia.seleccionada').length;
       if (seleccionadas > 0) {
-        if (document.getElementById('bloque-asistencia-activa').style.display === 'none') {
-          cargarNominaEstudiantes();
-        }
+        cargarNominaEstudiantes();
       } else {
         document.getElementById('bloque-asistencia-activa').style.display = 'none';
         document.getElementById('mensaje-inicial').style.display = 'flex';
@@ -344,57 +366,129 @@
     }
 
     function cargarNominaEstudiantes() {
+      document.getElementById('bloque-asistencia-activa').style.display = 'none';
       document.getElementById('mensaje-inicial').innerHTML = '<p>Cargando lista de alumnos...</p>';
       document.getElementById('mensaje-inicial').style.display = 'flex';
 
       const materiasSeleccionadas = Array.from(document.querySelectorAll('.btn-materia.seleccionada'))
         .map(b => b.textContent);
       const materiaPrincipal = materiasSeleccionadas.length > 0 ? materiasSeleccionadas[0] : "";
+      const fechaActual = document.getElementById('fecha-global').value;
 
-      apiPost({ action: 'getAlumnos', curso: cursoActivo, materia: materiaPrincipal })
-        .then(res => {
-          renderizarPlanilla(res.alumnos);
-        });
+      apiPost({ 
+        action: 'getAlumnos', 
+        curso: cursoActivo, 
+        materia: materiaPrincipal,
+        fecha: fechaActual
+      }).then(res => {
+        renderizarPlanilla(res.alumnos, res.estadosPrevios || {});
+      });
     }
 
-    function renderizarPlanilla(alumnos) {
+    function renderizarPlanilla(alumnos, estadosPrevios) {
       const planilla = document.getElementById('lista-alumnos-planilla');
       planilla.innerHTML = '';
       document.getElementById('check-suspension').checked = false;
+      procesarCambioSuspension(false);
+
+      const tieneDatosPrevios = Object.keys(estadosPrevios).length > 0;
+      document.getElementById('aviso-edicion').style.display = tieneDatosPrevios ? 'block' : 'none';
+      document.getElementById('btn-confirmar').textContent = tieneDatosPrevios ? 'Actualizar Asistencia' : 'Confirmar Asistencia';
 
       alumnos.forEach(alumno => {
+        const estadoInicial = estadosPrevios[alumno] || 'P';
+
         let fila = document.createElement('div');
         fila.className = 'item-alumno';
+        
         let bloqueDatos = document.createElement('div');
         let spanNombre = document.createElement('span');
         spanNombre.className = 'nombre-alumno';
         spanNombre.textContent = alumno;
         bloqueDatos.appendChild(spanNombre);
 
+        let controles = document.createElement('div');
+        controles.className = 'controles-asistencia';
+
+        // Casilla de Tarde al lado del botón
+        let labelTarde = document.createElement('label');
+        labelTarde.className = 'label-tarde';
+        let checkTarde = document.createElement('input');
+        checkTarde.type = 'checkbox';
+        checkTarde.className = 'check-tarde';
+        let txtTarde = document.createElement('span');
+        txtTarde.textContent = 'Tarde';
+        labelTarde.appendChild(checkTarde);
+        labelTarde.appendChild(txtTarde);
+
+        // Botón principal de asistencia
         let botonAsis = document.createElement('button');
-        botonAsis.className = 'btn-ciclo-asistencia estado-p';
-        botonAsis.textContent = "P (Presente)";
-        botonAsis.setAttribute('data-estado', 'P');
-        botonAsis.onclick = function() { rotarEstadoAsistencia(botonAsis); };
+        botonAsis.type = 'button';
+
+        // Eventos cruzados entre el botón y la casilla Tarde
+        botonAsis.onclick = function() {
+          rotarEstadoAsistencia(botonAsis, checkTarde, labelTarde);
+        };
+
+        checkTarde.onchange = function() {
+          if (checkTarde.checked) {
+            aplicarEstadoVisual(botonAsis, checkTarde, labelTarde, 'P (T)');
+          } else {
+            aplicarEstadoVisual(botonAsis, checkTarde, labelTarde, 'A');
+          }
+        };
+
+        // Aplicamos el estado inicial (sea P por defecto, o A / P (T) / AJ si ya se había enviado)
+        aplicarEstadoVisual(botonAsis, checkTarde, labelTarde, estadoInicial);
+
+        controles.appendChild(labelTarde);
+        controles.appendChild(botonAsis);
 
         fila.appendChild(bloqueDatos);
-        fila.appendChild(botonAsis);
+        fila.appendChild(controles);
         planilla.appendChild(fila);
       });
+
       document.getElementById('mensaje-inicial').style.display = 'none';
       document.getElementById('bloque-asistencia-activa').style.display = 'flex';
     }
 
-    function rotarEstadoAsistencia(btn) {
+    function aplicarEstadoVisual(btn, checkTarde, labelTarde, estado) {
+      btn.setAttribute('data-estado', estado);
+
+      if (estado === 'P') {
+        btn.className = 'btn-ciclo-asistencia estado-p';
+        btn.textContent = 'P (Presente)';
+        checkTarde.checked = false;
+        labelTarde.classList.remove('visible', 'activo');
+      } else if (estado === 'A') {
+        btn.className = 'btn-ciclo-asistencia estado-a';
+        btn.textContent = 'A (Ausente)';
+        checkTarde.checked = false;
+        labelTarde.classList.add('visible');
+        labelTarde.classList.remove('activo');
+      } else if (estado === 'P (T)') {
+        btn.className = 'btn-ciclo-asistencia estado-pt';
+        btn.textContent = 'P (T) (Tarde)';
+        checkTarde.checked = true;
+        labelTarde.classList.add('visible', 'activo');
+      } else if (estado === 'AJ') {
+        btn.className = 'btn-ciclo-asistencia estado-aj';
+        btn.textContent = 'AJ (Justificada)';
+        checkTarde.checked = false;
+        labelTarde.classList.remove('visible', 'activo');
+      }
+    }
+
+    function rotarEstadoAsistencia(btn, checkTarde, labelTarde) {
       const estadoActual = btn.getAttribute('data-estado');
-      let proximoEstado = "P";
-      if (estadoActual === "P") proximoEstado = "A";
-      else if (estadoActual === "A") proximoEstado = "AJ";
-      else if (estadoActual === "AJ") proximoEstado = "P";
+      let proximoEstado = 'P';
       
-      btn.setAttribute('data-estado', proximoEstado);
-      btn.className = 'btn-ciclo-asistencia ' + (proximoEstado === 'P' ? 'estado-p' : proximoEstado === 'A' ? 'estado-a' : 'estado-aj');
-      btn.textContent = proximoEstado === 'P' ? "P (Presente)" : proximoEstado === 'A' ? "A (Ausente)" : "AJ (Justificada)";
+      if (estadoActual === 'P') proximoEstado = 'A';
+      else if (estadoActual === 'A' || estadoActual === 'P (T)') proximoEstado = 'AJ';
+      else if (estadoActual === 'AJ') proximoEstado = 'P';
+      
+      aplicarEstadoVisual(btn, checkTarde, labelTarde, proximoEstado);
     }
 
     function procesarCambioSuspension(marcado) {
@@ -411,15 +505,16 @@
 
     function enviarAsistenciaFormulario() {
       const materiasSeleccionadas = Array.from(document.querySelectorAll('.btn-materia.seleccionada')).map(b => b.textContent);
+      const estaSuspendido = document.getElementById('check-suspension').checked;
       
       const payload = {
         fecha: document.getElementById('fecha-global').value,
         curso: cursoActivo,
         materias: materiasSeleccionadas,
-        suspension: document.getElementById('check-suspension').checked,
+        suspension: estaSuspendido,
         alumnos: Array.from(document.querySelectorAll('.item-alumno')).map(fila => ({
           nombre: fila.querySelector('.nombre-alumno').textContent,
-          estado: fila.querySelector('.btn-ciclo-asistencia').getAttribute('data-estado')
+          estado: estaSuspendido ? 'P' : fila.querySelector('.btn-ciclo-asistencia').getAttribute('data-estado')
         }))
       };
 
@@ -431,11 +526,18 @@
         .then(res => {
           if (res && res.success) {
             alert('Asistencias procesadas e impactadas correctamente.');
-            document.getElementById('mensaje-inicial').innerHTML = '<p>Registro exitoso. Puede seleccionar otra materia u otro curso.</p>';
+            document.getElementById('mensaje-inicial').innerHTML = '<p>Registro exitoso. Puede volver a tocar la materia si necesita corregir un estado, o elegir otro curso.</p>';
             
+            if (!materiasConfirmadasHoy[cursoActivo]) {
+              materiasConfirmadasHoy[cursoActivo] = [];
+            }
+
             document.querySelectorAll('.btn-materia.seleccionada').forEach(btn => {
               btn.classList.remove('seleccionada');
               btn.classList.add('confirmada');
+              if (materiasConfirmadasHoy[cursoActivo].indexOf(btn.textContent) === -1) {
+                materiasConfirmadasHoy[cursoActivo].push(btn.textContent);
+              }
             });
             document.getElementById('bloque-asistencia-activa').style.display = 'none';
           } else {
@@ -448,7 +550,6 @@
       const select = document.getElementById('select-curso-dashboard');
       select.innerHTML = '<option value="">Todos los Cursos</option>';
       
-      // Ordena alfanuméricamente todos los cursos globales (1A, 1B, 2A, 10A, etc.)
       const cursosOrdenados = Object.keys(cursosTotalesDisponibles).sort((a, b) => {
         return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
       });
@@ -469,7 +570,6 @@
       selectMateria.innerHTML = '<option value="">Todas las Materias</option>';
       let materiasParaMostrar = new Set();
       
-      // Utilizamos el objeto histórico para no depender del día seleccionado
       if (curso && cursosTotalesDisponibles[curso]) {
         cursosTotalesDisponibles[curso].forEach(m => materiasParaMostrar.add(m));
       } else {
